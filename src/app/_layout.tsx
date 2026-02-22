@@ -6,30 +6,30 @@ import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import CustomSplashScreen from '@/components/common/CustomSplashScreen';
+import WelcomeScreen from '@/features/onboarding/screens/WelcomeScreen';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: 'index',
 };
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [appIsReady, setAppIsReady] = useState(false);
   const [showCustomSplash, setShowCustomSplash] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     async function prepare() {
       try {
-        // Pre-load fonts, make any API calls you need to do here
-        // For now, we'll just wait for a bit to show off the splash screen
+        // Pre-load fonts or other assets here
         await new Promise(resolve => setTimeout(resolve, 2000));
       } catch (e) {
         console.warn(e);
       } finally {
-        // Tell the application to render
         setAppIsReady(true);
       }
     }
@@ -39,25 +39,42 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (appIsReady) {
-      // Hide the native splash screen as soon as the app is ready
+      // Hide the native splash screen
       SplashScreen.hideAsync();
 
-      // Keep the custom splash screen for another 1 second for a smooth transition
-      const timer = setTimeout(() => {
+      // Keep custom splash for 1.5 seconds, then show Welcome Screen
+      const splashTimer = setTimeout(() => {
         setShowCustomSplash(false);
+        setShowWelcome(true);
       }, 1500);
 
-      return () => clearTimeout(timer);
+      return () => clearTimeout(splashTimer);
     }
   }, [appIsReady]);
+
+  useEffect(() => {
+    if (showWelcome) {
+      // Show Welcome Screen for 4 seconds
+      const welcomeTimer = setTimeout(() => {
+        setShowWelcome(false);
+      }, 4000);
+
+      return () => clearTimeout(welcomeTimer);
+    }
+  }, [showWelcome]);
 
   if (showCustomSplash) {
     return <CustomSplashScreen />;
   }
 
+  if (showWelcome) {
+    return <WelcomeScreen />;
+  }
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
