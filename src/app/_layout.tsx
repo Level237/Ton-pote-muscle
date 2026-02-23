@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import CustomSplashScreen from '@/components/common/CustomSplashScreen';
+import OnboardingScreen from '@/features/onboarding/screens/OnboardingScreen';
 import WelcomeScreen from '@/features/onboarding/screens/WelcomeScreen';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -21,6 +22,7 @@ export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
   const [showCustomSplash, setShowCustomSplash] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     async function prepare() {
@@ -57,6 +59,7 @@ export default function RootLayout() {
       // Show Welcome Screen for 4 seconds
       const welcomeTimer = setTimeout(() => {
         setShowWelcome(false);
+        setShowOnboarding(true);
       }, 4000);
 
       return () => clearTimeout(welcomeTimer);
@@ -69,6 +72,10 @@ export default function RootLayout() {
 
   if (showWelcome) {
     return <WelcomeScreen />;
+  }
+
+  if (showOnboarding) {
+    return <OnboardingScreen />;
   }
 
   return (
