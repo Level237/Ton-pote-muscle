@@ -122,7 +122,11 @@ const AnimatedButtonText = ({ index, scrollX }: ButtonTextProps) => {
     );
 };
 
-const OnboardingScreen = () => {
+interface OnboardingScreenProps {
+    onComplete?: () => void;
+}
+
+const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
     const insets = useSafeAreaInsets();
     const router = useRouter();
     const scrollX = useSharedValue(0);
@@ -142,7 +146,8 @@ const OnboardingScreen = () => {
                 animated: true,
             });
         } else {
-            router.replace('/(tabs)');
+            router.push('/(goal)/gender');
+            console.log("le")
         }
     };
 
@@ -224,7 +229,7 @@ const styles = StyleSheet.create({
     } as any,
     contentOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.4)',
+        backgroundColor: 'rgba(0,0,0,0.2)',
         justifyContent: 'center',
         alignItems: 'flex-start',
         paddingHorizontal: 20,
@@ -265,10 +270,10 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#FFFFFF',
-        paddingHorizontal: 40,
-        paddingVertical: 14,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
         borderRadius: 35,
-        width: '65%',
+        width: '55%',
         alignItems: 'center',
         elevation: 5,
         shadowColor: '#000',
