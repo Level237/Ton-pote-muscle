@@ -100,8 +100,7 @@ const HeightGoalScreen = () => {
     };
 
     const handleNext = () => {
-        // router.push('/(goal)/next_category');
-        console.log('Selected Height:', selectedHeight);
+        router.push('/(goal)/objective');
     };
 
     return (

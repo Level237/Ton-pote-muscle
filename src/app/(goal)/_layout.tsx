@@ -32,6 +32,12 @@ export default function GoalLayout() {
                         title: 'Taille',
                     }}
                 />
+                <Stack.Screen
+                    name="objective"
+                    options={{
+                        title: 'Objectif',
+                    }}
+                />
 
             </Stack>
             <StatusBar style="dark" />
