@@ -1,10 +1,10 @@
+import { COLORS } from '@/constants/colors';
 import { Image } from 'expo-image';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import FooterGoal from '../components/FooterGoal';
 import HeaderGoal from '../components/HeaderGoal';
 import { imagesGoal } from '../constants/images';
-
 const GenderGoalScreen = () => {
     const [gender, setGender] = useState<'masculin' | 'feminin' | null>(null);
 
@@ -93,15 +93,14 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         borderRadius: 75,
-        backgroundColor: '#D1EA28',
+        backgroundColor: COLORS.primary,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 4,
         borderColor: 'transparent',
     },
     selectedCircle: {
-        borderColor: '#000000',
-        // We can also change the icon color if needed, but for now we follow the design
+        borderColor: '#2e0909ff',
     },
     genderIcon: {
         width: 80,

@@ -1,7 +1,7 @@
+import { COLORS } from '@/constants/colors';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 interface HeaderGoalProps {
     step: number;
     totalSteps: number;
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         borderRadius: 12,
-        backgroundColor: '#e6f419',
+        backgroundColor: COLORS.primary,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 10,
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     },
     divider: {
         height: 1,
-        backgroundColor: '#e6f419',
+        backgroundColor: COLORS.primary,
         width: '100%',
     },
 });

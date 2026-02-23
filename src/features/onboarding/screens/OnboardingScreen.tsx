@@ -146,8 +146,7 @@ const OnboardingScreen = ({ onComplete }: OnboardingScreenProps) => {
                 animated: true,
             });
         } else {
-            router.push('/(goal)/gender');
-            console.log("le")
+            router.replace('/(goal)/gender');
         }
     };
 

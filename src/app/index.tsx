@@ -1,8 +1,7 @@
-import WelcomeScreen from "@/features/onboarding/screens/WelcomeScreen";
-
+import OnboardingScreen from "@/features/onboarding/screens/OnboardingScreen";
 
 export default function Index() {
     return (
-        <WelcomeScreen />
+        <OnboardingScreen />
     );
 }

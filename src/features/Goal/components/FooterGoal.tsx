@@ -1,7 +1,7 @@
+import { COLORS } from '@/constants/colors';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 interface FooterGoalProps {
     onPress: () => void;
     title?: string;
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         paddingTop: 10,
     },
     button: {
-        backgroundColor: '#e6f419',
+        backgroundColor: COLORS.primary,
         height: 56,
         borderRadius: 0, // Rectangular as per screenshot
         justifyContent: 'center',
