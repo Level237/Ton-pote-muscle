@@ -20,6 +20,18 @@ export default function GoalLayout() {
                         title: 'Genre',
                     }}
                 />
+                <Stack.Screen
+                    name="weight"
+                    options={{
+                        title: 'Poids',
+                    }}
+                />
+                <Stack.Screen
+                    name="height"
+                    options={{
+                        title: 'Taille',
+                    }}
+                />
 
             </Stack>
             <StatusBar style="dark" />

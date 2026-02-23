@@ -4,11 +4,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 interface HeaderGoalProps {
     step: number;
+    progress: number;
     totalSteps: number;
     title: string;
 }
 
-const HeaderGoal = ({ step, totalSteps, title }: HeaderGoalProps) => {
+const HeaderGoal = ({ step, progress, totalSteps, title }: HeaderGoalProps) => {
     const insets = useSafeAreaInsets();
 
     return (
@@ -26,7 +27,7 @@ const HeaderGoal = ({ step, totalSteps, title }: HeaderGoalProps) => {
                         key={i}
                         style={[
                             styles.progressBar,
-                            { backgroundColor: i < step ? '#D1EA28' : '#E0E0E0' }
+                            { backgroundColor: i < progress ? COLORS.primary : '#E0E0E0' }
                         ]}
                     />
                 ))}

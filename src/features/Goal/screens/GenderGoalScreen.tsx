@@ -1,24 +1,28 @@
 import { COLORS } from '@/constants/colors';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FooterGoal from '../components/FooterGoal';
 import HeaderGoal from '../components/HeaderGoal';
 import { imagesGoal } from '../constants/images';
 const GenderGoalScreen = () => {
+    const insets = useSafeAreaInsets();
+    const router = useRouter();
     const [gender, setGender] = useState<'masculin' | 'feminin' | null>(null);
 
     const handleNext = () => {
         if (gender) {
-            console.log('Selected gender:', gender);
-            // Future navigation logic
+            router.push('/(goal)/weight');
         }
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
             <HeaderGoal
                 step={1}
+                progress={1}
                 totalSteps={3}
                 title="A propos de votre corps"
             />
@@ -79,10 +83,11 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 28,
+        width: '70%',
         fontWeight: '900',
         color: '#000000',
         textAlign: 'center',
-        marginBottom: 50,
+        marginBottom: 30,
     },
     selectionContainer: {
         flexDirection: 'column',
