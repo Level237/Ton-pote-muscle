@@ -38,6 +38,12 @@ export default function GoalLayout() {
                         title: 'Objectif',
                     }}
                 />
+                <Stack.Screen
+                    name="level-training"
+                    options={{
+                        title: 'Niveau',
+                    }}
+                />
 
             </Stack>
             <StatusBar style="dark" />

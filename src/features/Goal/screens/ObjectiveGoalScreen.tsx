@@ -32,8 +32,7 @@ const ObjectiveGoalScreen = () => {
 
     const handleNext = () => {
         if (selectedObjective) {
-            // router.push('/(goal)/focus');
-            console.log('Selected Objective:', selectedObjective);
+            router.push('/(goal)/level-training');
         }
     };
 
