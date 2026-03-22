@@ -44,6 +44,12 @@ export default function GoalLayout() {
                         title: 'Niveau',
                     }}
                 />
+                <Stack.Screen
+                    name="level-activity"
+                    options={{
+                        title: 'Activité',
+                    }}
+                />
 
             </Stack>
             <StatusBar style="dark" />

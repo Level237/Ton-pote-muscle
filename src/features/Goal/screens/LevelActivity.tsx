@@ -1,4 +1,5 @@
 import { COLORS } from '@/constants/colors';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -6,22 +7,23 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FooterGoal from '../components/FooterGoal';
 import HeaderGoal from '../components/HeaderGoal';
 
-const TRAINING_LEVELS = [
-    { id: 'new', label: "C'est nouveau pour moi" },
-    { id: 'start-stop', label: "Je commence toujours\nmais je ne termine jamais" },
-    { id: 'hard', label: "Faire du sport, c'est un calvaire" },
-    { id: 'seasonal', label: "Je suis saisonnier\npour des objectifs precis" },
-    { id: 'regular', label: "Je suis assez régulier" },
-];
+const ACTIVITY_LEVELS = [
+    { id: 'sedentary', label: 'Sédentaire', iconName: 'seat-recline-normal' },
+    { id: 'lightly', label: 'Légèrement actif', iconName: 'walk' },
+    { id: 'moderately', label: 'Modérément actif', iconName: 'run' },
+    { id: 'very', label: 'Très actif', iconName: 'run-fast' },
+] as const;
 
-const LevelTrainingScreen = () => {
+const LevelActivityScreen = () => {
     const insets = useSafeAreaInsets();
     const router = useRouter();
-    const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+    const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
 
     const handleNext = () => {
-        if (selectedLevel) {
-            router.push('/(goal)/level-activity');
+        if (selectedActivity) {
+            // Placeholder for next screen route
+            // router.push('/(goal)/next_screen');
+            console.log('Selected Activity:', selectedActivity);
         }
     };
 
@@ -38,11 +40,11 @@ const LevelTrainingScreen = () => {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                <Text style={styles.title}>Quel est votre niveau{'\n'}d'entrainement ?</Text>
+                <Text style={styles.title}>Quel est votre niveau{'\n'}d'activité ?</Text>
 
                 <View style={styles.optionsContainer}>
-                    {TRAINING_LEVELS.map((level) => {
-                        const isSelected = selectedLevel === level.id;
+                    {ACTIVITY_LEVELS.map((level) => {
+                        const isSelected = selectedActivity === level.id;
                         return (
                             <TouchableOpacity
                                 key={level.id}
@@ -50,13 +52,16 @@ const LevelTrainingScreen = () => {
                                     styles.optionButton,
                                     isSelected && styles.selectedOptionButton
                                 ]}
-                                onPress={() => setSelectedLevel(level.id)}
+                                onPress={() => setSelectedActivity(level.id)}
                                 activeOpacity={0.8}
                             >
-                                <Text style={[
-                                    styles.optionText,
-                                    isSelected && styles.selectedOptionText
-                                ]}>
+                                <MaterialCommunityIcons
+                                    name={level.iconName as any}
+                                    size={36}
+                                    color="#000000"
+                                    style={styles.icon}
+                                />
+                                <Text style={styles.optionText}>
                                     {level.label}
                                 </Text>
                             </TouchableOpacity>
@@ -67,7 +72,7 @@ const LevelTrainingScreen = () => {
 
             <FooterGoal
                 onPress={handleNext}
-                disabled={!selectedLevel}
+                disabled={!selectedActivity}
                 title="Sélectionner"
             />
         </View>
@@ -99,31 +104,26 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     optionButton: {
-        backgroundColor: '#E0E0E0',
+        flexDirection: 'row',
+        backgroundColor: '#D8D8D8',
         borderRadius: 15,
-        paddingVertical: 20,
-        paddingHorizontal: 20,
+        paddingVertical: 15,
+        paddingHorizontal: 30,
         width: '100%',
-        justifyContent: 'center',
         alignItems: 'center',
         minHeight: 80,
-        borderWidth: 2,
-        borderColor: 'transparent',
     },
     selectedOptionButton: {
-
         backgroundColor: COLORS.primary,
     },
-    optionText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#000000',
-        textAlign: 'center',
-        lineHeight: 22,
+    icon: {
+        marginRight: 20,
     },
-    selectedOptionText: {
-        fontWeight: '800',
+    optionText: {
+        fontSize: 18,
+        fontWeight: '500',
+        color: '#000000',
     },
 });
 
-export default LevelTrainingScreen;
+export default LevelActivityScreen;
