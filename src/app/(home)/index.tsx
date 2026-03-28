@@ -1,18 +1,31 @@
+import ChallengesSection from '@/features/workout/components/ChallengesSection';
 import HeaderWorkout from '@/features/workout/components/HeaderWorkout';
+import TargetedExerciseSection from '@/features/workout/components/TargetedExerciseSection';
+import WeeklyRecap from '@/features/workout/components/WeeklyRecap';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
     const insets = useSafeAreaInsets();
 
     return (
-        <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
+            {/* Static Header */}
             <HeaderWorkout />
-            <View style={styles.content}>
-                <Text style={styles.title}>Accueil Contenu</Text>
-            </View>
-        </ScrollView>
+
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                <WeeklyRecap />
+                <ChallengesSection />
+                <TargetedExerciseSection />
+
+                {/* Adding padding at the bottom to account for the custom floating bottom tab bar */}
+                <View style={{ height: 120 }} />
+            </ScrollView>
+        </View>
     );
 }
 
@@ -21,14 +34,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#000000',
     },
-    content: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 40,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#FFFFFF',
+    scrollContent: {
+        flexGrow: 1,
     },
 });
