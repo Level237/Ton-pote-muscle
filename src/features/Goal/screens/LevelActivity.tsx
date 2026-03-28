@@ -21,9 +21,7 @@ const LevelActivityScreen = () => {
 
     const handleNext = () => {
         if (selectedActivity) {
-            // Placeholder for next screen route
-            // router.push('/(goal)/next_screen');
-            console.log('Selected Activity:', selectedActivity);
+            router.push('/(goal)/motivation');
         }
     };
 

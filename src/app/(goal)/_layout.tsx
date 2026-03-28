@@ -50,6 +50,12 @@ export default function GoalLayout() {
                         title: 'Activité',
                     }}
                 />
+                <Stack.Screen
+                    name="motivation"
+                    options={{
+                        title: 'Motivation',
+                    }}
+                />
 
             </Stack>
             <StatusBar style="dark" />
