@@ -28,7 +28,7 @@ const HeaderWorkout = () => {
                         <MaterialCommunityIcons name="magnify" size={24} color="#FFFFFF" />
                     </TouchableOpacity>
 
-                    <Text style={styles.greetingText}>Hello Martin</Text>
+                    <Text style={styles.greetingText}>Hello Level</Text>
                     {/* Placeholder for Flag/Avatar */}
                     <View style={styles.flagPlaceholder}>
                         <Text style={{ fontSize: 14 }}>🇫🇷</Text>

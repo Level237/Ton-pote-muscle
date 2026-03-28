@@ -29,7 +29,7 @@ export default function HomeLayout() {
                     backgroundColor: "#D8D8D8",
                     borderRadius: 50,
                     marginHorizontal: 12,
-                    marginBottom: 25,
+                    marginBottom: 12,
                     height: 85,
                     paddingTop: 20,
                     position: "absolute",
