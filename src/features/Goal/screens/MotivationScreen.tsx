@@ -39,8 +39,7 @@ const MotivationScreen = () => {
 
     const handleNext = () => {
         if (selectedMotivations.length > 0) {
-            // router.push('/(goal)/next_screen');
-            console.log('Selected Motivations:', selectedMotivations);
+            router.push('/(home)');
         }
     };
 
