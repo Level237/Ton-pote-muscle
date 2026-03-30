@@ -1,5 +1,6 @@
 import { COLORS } from '@/constants/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React from 'react';
 import { Dimensions, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -16,9 +17,16 @@ interface ChallengeCardProps {
     onPress?: () => void;
 }
 
-const ChallengeCard: React.FC<ChallengeCardProps> = ({ title, duration, description, imageSource, onPress }) => {
+const ChallengeCard: React.FC<ChallengeCardProps> = ({ title, duration, description, imageSource }) => {
+    const handlePress = () => {
+        router.push({
+            pathname: '/(workout)/challenge-detail',
+            params: { title, image: '' }
+        });
+    };
+
     return (
-        <TouchableOpacity style={styles.cardContainer} activeOpacity={0.9} onPress={onPress}>
+        <TouchableOpacity style={styles.cardContainer} activeOpacity={0.9} onPress={handlePress}>
             <ImageBackground
                 source={imageSource}
                 style={styles.imageBackground}
