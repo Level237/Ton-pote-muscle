@@ -1,13 +1,17 @@
-<x-layouts.guest title="Ton Pote Musclé">
-    <div class="w-full max-w-[20.5rem]">
-        <a href="{{ route('login') }}">
-            <span class="auth-cta block w-full bg-primary py-3.5 text-center font-display text-[15px] font-bold uppercase tracking-[0.14em] text-bg transition-colors duration-150 hover:bg-primary-hover">
-                Se connecter
-            </span>
+<x-layouts.guest title="Ton Pote Musclé" heading="Bienvenue">
+    <div class="space-y-3">
+        <a
+            href="{{ route('login') }}"
+            class="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-bg transition-colors hover:bg-primary-hover"
+        >
+            Se connecter
         </a>
-        <p class="mt-8 text-center text-sm text-muted">
-            Pas de compte ?
-            <a href="{{ route('register') }}" class="font-semibold text-primary hover:text-primary-hover">Inscription</a>
-        </p>
+
+        <a
+            href="{{ route('register') }}"
+            class="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-border bg-bg px-4 py-2.5 text-sm font-semibold text-text transition-colors hover:border-primary/50 hover:text-primary"
+        >
+            Inscription
+        </a>
     </div>
 </x-layouts.guest>

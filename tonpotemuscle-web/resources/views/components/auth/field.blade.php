@@ -7,10 +7,11 @@
 
 @php
     $isPassword = $type === 'password';
+    $hasError = $errors->has($name);
 @endphp
 
 <div>
-    <label for="{{ $name }}" class="mb-2 block text-[11px] font-medium uppercase tracking-[0.2em] text-muted">
+    <label for="{{ $name }}" class="mb-1.5 block text-sm font-medium text-text">
         {{ $label }}
     </label>
     <input
@@ -20,10 +21,10 @@
         value="{{ $isPassword ? '' : old($name) }}"
         @if ($autocomplete) autocomplete="{{ $autocomplete }}" @endif
         {{ $attributes->merge([
-            'class' => 'w-full border-0 border-b border-white/15 bg-transparent px-0 py-2.5 text-[15px] text-text caret-primary outline-none transition-[border-color] duration-150 placeholder:text-muted/40 focus:border-primary',
+            'class' => 'min-h-11 w-full rounded-lg border bg-bg px-3.5 text-sm text-text outline-none transition-colors placeholder:text-muted/50 focus:border-primary focus:ring-2 focus:ring-primary/20 '.($hasError ? 'border-danger' : 'border-border'),
         ]) }}
     >
     @error($name)
-        <p class="mt-2 text-sm text-danger">{{ $message }}</p>
+        <p class="mt-1.5 text-xs text-danger">{{ $message }}</p>
     @enderror
 </div>

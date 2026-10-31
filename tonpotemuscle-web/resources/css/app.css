@@ -24,10 +24,6 @@
 }
 
 @layer components {
-    .auth-cta {
-        clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-    }
-
     .admin-stat-carousel {
         scrollbar-width: none;
         -webkit-overflow-scrolling: touch;

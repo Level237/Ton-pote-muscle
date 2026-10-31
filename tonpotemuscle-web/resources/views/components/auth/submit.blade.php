@@ -1,7 +1,7 @@
 <button
     type="submit"
     {{ $attributes->merge([
-        'class' => 'auth-cta mt-2 w-full bg-primary py-3.5 font-display text-[15px] font-bold uppercase tracking-[0.14em] text-bg transition-colors duration-150 hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+        'class' => 'inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-bg transition-colors hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-px',
     ]) }}
 >
     {{ $slot }}

@@ -1,5 +1,7 @@
 @props([
     'title' => null,
+    'heading' => null,
+    'subtitle' => null,
 ])
 
 <!DOCTYPE html>
@@ -12,13 +14,26 @@
         <x-font-awesome />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-bg font-sans text-text antialiased">
-        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(230,244,25,0.07),transparent_52%)]"></div>
-        <div class="relative flex min-h-screen flex-col items-center justify-center px-6 py-16">
-            <a href="{{ route('home') }}" class="mb-12 block">
-                <img src="{{ asset('assets/img/logo.webp') }}" alt="Ton Pote Musclé" class="h-12 w-auto">
-            </a>
-            {{ $slot }}
+    <body class="min-h-dvh bg-bg font-sans text-text antialiased">
+        <div class="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 py-12 sm:px-6">
+            <div class="mb-6 flex items-center justify-between">
+                <a href="{{ route('home') }}" class="inline-flex items-center">
+                    <img src="{{ asset('assets/img/logo.webp') }}" alt="Ton Pote Musclé" class="h-9 w-auto">
+                </a>
+                @if ($subtitle)
+                    <span class="text-xs font-medium uppercase tracking-wider text-muted">{{ $subtitle }}</span>
+                @endif
+            </div>
+
+            <div class="rounded-2xl border border-border bg-surface p-6 sm:p-8">
+                @if ($heading)
+                    <h1 class="mb-6 font-display text-2xl font-bold uppercase tracking-wide text-text">
+                        {{ $heading }}
+                    </h1>
+                @endif
+
+                {{ $slot }}
+            </div>
         </div>
     </body>
 </html>
