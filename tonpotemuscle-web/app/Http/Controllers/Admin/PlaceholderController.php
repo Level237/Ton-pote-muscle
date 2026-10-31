@@ -10,21 +10,6 @@ class PlaceholderController extends Controller
     public function __invoke(): View
     {
         $pages = [
-            'admin.exercises.index' => [
-                'title' => 'Exercices',
-                'icon' => 'fa-solid fa-dumbbell',
-                'description' => 'Créer, modifier et archiver les exercices du catalogue.',
-            ],
-            'admin.workouts.index' => [
-                'title' => 'Séances',
-                'icon' => 'fa-solid fa-stopwatch',
-                'description' => 'Composer les séances et ordonner leurs exercices.',
-            ],
-            'admin.programs.index' => [
-                'title' => 'Programmes',
-                'icon' => 'fa-solid fa-calendar-check',
-                'description' => 'Période, calendrier de séances, URL publique à envoyer.',
-            ],
             'admin.enrollments.index' => [
                 'title' => 'Inscrits',
                 'icon' => 'fa-solid fa-user-group',
@@ -34,6 +19,11 @@ class PlaceholderController extends Controller
                 'title' => 'Classements',
                 'icon' => 'fa-solid fa-trophy',
                 'description' => 'Classement provisoire, clôture, publication et export CSV.',
+            ],
+            'admin.profile' => [
+                'title' => 'Profil',
+                'icon' => 'fa-solid fa-user',
+                'description' => 'Informations du compte administrateur.',
             ],
         ];
 

@@ -13,7 +13,7 @@ class AdminDashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_dashboard_shows_stats_quick_links_and_recent_lists(): void
+    public function test_admin_dashboard_shows_stats_and_recent_lists(): void
     {
         $admin = User::factory()->admin()->create();
         User::factory()->member()->create(['username' => 'marie', 'name' => 'Marie']);
@@ -24,11 +24,14 @@ class AdminDashboardTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.dashboard'))
             ->assertOk()
+            ->assertSee('Home')
+            ->assertSee('Profil')
             ->assertSee('Membres')
             ->assertSee('Exercices')
             ->assertSee('Programmes')
+            ->assertSee('Plus')
             ->assertSee('Programmes en cours')
-            ->assertSee('Liens rapides')
+            ->assertSee('Déconnexion')
             ->assertSee('Programmes récents')
             ->assertSee('Séances récentes')
             ->assertSee('Membres récents')

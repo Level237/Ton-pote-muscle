@@ -15,8 +15,8 @@
                     <p class="truncate text-sm font-medium text-text">{{ $workout->title }}</p>
                     <p class="mt-0.5 text-xs tabular-nums text-muted">
                         {{ $workout->durationMinutes() }} min
-                        @if ($workout->difficulty)
-                            · {{ $workout->difficulty }}
+                        @if ($workout->difficultyLabel())
+                            · {{ $workout->difficultyLabel() }}
                         @endif
                     </p>
                 </div>

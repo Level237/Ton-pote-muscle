@@ -13,15 +13,11 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen bg-bg font-sans text-text antialiased">
-        <div class="flex min-h-screen">
-            <aside class="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-border bg-surface">
-                <div class="px-5 py-6">
-                    <a href="{{ route('admin.dashboard') }}" class="inline-block">
-                        <img src="{{ asset('assets/img/logo.webp') }}" alt="Ton Pote Musclé" class="h-8 w-auto">
-                    </a>
-                </div>
+        <x-admin.top-bar />
 
-                <nav class="flex flex-1 flex-col gap-1 px-3">
+        <div class="flex min-h-[calc(100vh-3.5rem)]">
+            <aside class="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-56 shrink-0 flex-col border-r border-border bg-surface lg:flex">
+                <nav class="flex flex-1 flex-col gap-1 px-3 py-4">
                     <x-admin.nav-link href="{{ route('admin.dashboard') }}" icon="fa-solid fa-grip" :active="request()->routeIs('admin.dashboard')">
                         Tableau de bord
                     </x-admin.nav-link>
@@ -53,11 +49,18 @@
                 </div>
             </aside>
 
-            <main class="min-w-0 flex-1 px-8 py-10 lg:px-12">
+                <main class="min-w-0 flex-1 px-4 py-6 pb-24 lg:px-12 lg:py-10 lg:pb-10">
                 <div class="mx-auto max-w-6xl">
+                    @if (session('status'))
+                        <p class="mb-6 rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary" role="status">
+                            {{ session('status') }}
+                        </p>
+                    @endif
                     {{ $slot }}
                 </div>
             </main>
         </div>
+
+        <x-admin.mobile-bar />
     </body>
 </html>
