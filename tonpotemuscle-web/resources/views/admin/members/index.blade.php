@@ -54,7 +54,7 @@
 
                             <div class="min-w-0 flex-1">
                                 <p class="truncate text-sm font-medium text-text">
-                                    {{ $member->name }}
+                                    <a href="{{ route('admin.enrollments.show', $member) }}" class="hover:text-primary">{{ $member->name }}</a>
                                     @if ($member->username)
                                         <span class="font-normal text-muted">{{ '@'.$member->username }}</span>
                                     @endif
@@ -66,6 +66,9 @@
                             </div>
 
                             <div class="flex shrink-0 items-center gap-2">
+                                <a href="{{ route('admin.enrollments.show', $member) }}" class="min-h-11 px-2 text-sm font-medium text-text hover:text-primary">
+                                    Voir
+                                </a>
                                 @if ($deactivated)
                                     <form method="POST" action="{{ route('admin.enrollments.activate', $member) }}">
                                         @csrf

@@ -28,9 +28,9 @@ Espaces séparés : `/admin` vs espace membre.
 
 **Séance** — réutilisable, sans dates. Exercices ordonnés (reps ou durée, repos). Seule (à la carte) ou placée dans un programme.
 
-**Programme** — **public**. Période (début / fin), calendrier de séances. Rejoindre = entrer en compétition (pseudo au classement). Points pendant la période, classement live, snapshot à la clôture.
+**Programme** — créé par le coach, période + calendrier. Attribué aux membres (Donner une semaine), pas un self-join public pour l’instant.
 
-**Inscription** — un programme actif à la fois (V1).
+**Inscription** — le coach connaît ses membres ; il crée le compte / l’inscrit et lui donne le plan.
 
 **Log** — preuve qu’une séance a été faite (liée ou non à un programme).
 
@@ -51,39 +51,21 @@ Garde-fous : 1 log par séance et par jour ; durée déclarée bornée ; badges 
 
 - Auth.
 - CRUD exercices, séances, programmes (période + calendrier).
-- Diffuser un programme : copier l’**URL publique** de la fiche (`/programmes/{uuid}`) et l’envoyer. Pas de générateur de lien, pas de token.
+- Donner une séance ou une semaine à un inscrit (plan privé coach → membre).
 - Liste des inscrits.
 - Classement provisoire, clôture / publication, export CSV.
 
 ### Membre
 
-- Auth, profil (genre, objectif, niveaux, taille, poids, motivations) et modification de ces paramètres.
-- Pseudo visible au classement (pas l’e-mail).
-- Catalogue séances / programmes (fiches publiques).
-- **Rejoindre un programme** (voir §6.1) / abandonner.
-- Inscription compte seulement si besoin, après le clic Rejoindre.
-- Séance live ou déclarée.
-- Dashboard : programme actif, rang, points, prochaine séance, derniers logs.
-- Classement live des inscrits + écart au suivant.
-- Partage d’un résumé (séance ou rang).
+- Auth. Espace **privé** : le membre voit le plan que le coach lui a donné.
+- Dashboard : Accueil / Semaine / Progrès (séances du calendrier, à rattraper, stats).
+- Profil (genre, objectif, niveaux, taille, poids, motivations) et modification — ensuite.
+- Séance live ou déclarée — ensuite.
+- Classement / points / partage — ensuite, une fois les logs en place.
 
-### 6.1 Parcours « Rejoindre le programme »
+### 6.1 Rejoindre un programme (plus tard)
 
-La fiche est lisible **sans compte**. Un seul CTA : **Rejoindre le programme**.
-
-```
-Fiche publique  →  Rejoindre  →  (si besoin) créer un compte ou se connecter  →  retour sur le programme, inscrit
-```
-
-| État | Après « Rejoindre » |
-|------|---------------------|
-| Visiteur | Création de compte (lien « j’ai déjà un compte » → connexion). Intention `programme` conservée. |
-| Membre connecté | Inscription immédiate, on reste sur la fiche (déjà dedans). |
-| Compte créé / connecté | Retour **sur ce programme**, déjà **inscrit** (pas un 2e clic Rejoindre). |
-
-Le profil (taille, poids, etc.) se complète après, depuis le compte — on ne bloque pas le join avec un onboarding long.
-
-Programme `clos` ou `draft` : pas de CTA Rejoindre.
+Pas dans le flux actuel. Le coach attribue. Un self-join public pourra revenir si le club s’ouvre.
 
 ## 7. Points
 
@@ -108,7 +90,7 @@ Laravel 13, Vite, Tailwind 4. Tout le métier dans cette app.
 
 ## 9. Succès
 
-Admin crée séance + programme. Membre s’inscrit, fait live et déclarée, gagne des points, voit son rang. Classement figé à la fin. La déclarée n’exclut personne.
+Le coach crée séances + programmes, donne un plan à ses membres. Le membre voit son dashboard, fera live et déclarée, gagnera des points. La déclarée n’exclut personne.
 
 ## 10. Gelé (ne pas implémenter maintenant)
 

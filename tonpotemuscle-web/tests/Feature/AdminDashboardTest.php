@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Bilan;
 use App\Models\Exercise;
 use App\Models\Program;
 use App\Models\User;
@@ -20,6 +21,13 @@ class AdminDashboardTest extends TestCase
         Exercise::factory()->create(['title' => 'Pompes']);
         Workout::factory()->create(['title' => 'Full body', 'total_duration_seconds' => 1800]);
         Program::factory()->inProgress()->create(['title' => '4 semaines']);
+        $bilan = Bilan::factory()->create(['title' => 'Bilan de santé']);
+        $bilan->questions()->create([
+            'position' => 1,
+            'title' => 'Objectif principal',
+            'type' => 'choice',
+            'options' => ['Perte de poids', 'Prise de muscle'],
+        ]);
 
         $this->actingAs($admin)
             ->get(route('admin.dashboard'))
@@ -35,6 +43,8 @@ class AdminDashboardTest extends TestCase
             ->assertSee('Programmes récents')
             ->assertSee('Séances récentes')
             ->assertSee('Membres récents')
+            ->assertSee('Bilans')
+            ->assertSee('Bilan de santé')
             ->assertSee('Full body')
             ->assertSee('30 min')
             ->assertSee('4 semaines')
@@ -51,6 +61,7 @@ class AdminDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('Aucun programme.')
             ->assertSee('Aucune séance.')
-            ->assertSee('Aucun membre.');
+            ->assertSee('Aucun membre.')
+            ->assertSee('Aucun bilan.');
     }
 }

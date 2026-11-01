@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Exercise;
 use App\Models\User;
 use App\Models\Workout;
+use App\Models\WorkoutCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -49,16 +50,20 @@ class AdminWorkoutTest extends TestCase
     public function test_admin_can_create_a_workout_with_ordered_exercises(): void
     {
         $admin = User::factory()->admin()->create();
+        $category = WorkoutCategory::query()->create(['title' => 'Force']);
         $pompes = Exercise::factory()->create(['title' => 'Pompes']);
         $squats = Exercise::factory()->create(['title' => 'Squats']);
 
         $this->actingAs($admin)
             ->post(route('admin.workouts.store'), [
                 'title' => 'Full body',
+                'category_id' => $category->id,
                 'difficulty' => 'beginner',
+                'notes' => 'Rester sur la respiration.',
                 'items' => [
                     [
                         'exercise_id' => $pompes->id,
+                        'sets' => 3,
                         'reps' => 12,
                         'duration_seconds' => '',
                         'rest_seconds' => 30,
@@ -76,12 +81,16 @@ class AdminWorkoutTest extends TestCase
         $workout = Workout::query()->where('title', 'Full body')->first();
 
         $this->assertNotNull($workout);
+        $this->assertSame($category->id, $workout->category_id);
         $this->assertSame('beginner', $workout->difficulty);
+        $this->assertSame('Rester sur la respiration.', $workout->notes);
         $this->assertSame(90, $workout->total_duration_seconds);
         $this->assertCount(2, $workout->items);
         $this->assertSame($pompes->id, $workout->items[0]->exercise_id);
+        $this->assertSame(3, $workout->items[0]->sets);
         $this->assertSame(12, $workout->items[0]->reps);
         $this->assertSame($squats->id, $workout->items[1]->exercise_id);
+        $this->assertSame(1, $workout->items[1]->sets);
         $this->assertSame(40, $workout->items[1]->duration_seconds);
     }
 

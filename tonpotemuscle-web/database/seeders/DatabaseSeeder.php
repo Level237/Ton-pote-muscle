@@ -13,12 +13,21 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::factory()->admin()->create([
-            'name' => 'Admin',
-            'username' => 'admin',
-            'email' => 'admin@tonpotemuscle.test',
-            'password' => 'password',
-            'role' => UserRole::Admin,
+        User::query()->firstOrCreate(
+            ['email' => 'admin@tonpotemuscle.test'],
+            [
+                'name' => 'Admin',
+                'username' => 'admin',
+                'password' => 'password',
+                'role' => UserRole::Admin,
+            ],
+        );
+
+        $this->call([
+            ExerciseSeeder::class,
+            WorkoutSeeder::class,
+            ProgramSeeder::class,
+            BilanSeeder::class,
         ]);
     }
 }

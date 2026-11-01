@@ -1,5 +1,5 @@
 @php
-    $moreOpen = request()->routeIs('admin.enrollments.*', 'admin.rankings.*');
+    $moreOpen = request()->routeIs('admin.enrollments.*', 'admin.rankings.*', 'admin.bilans.*');
 @endphp
 
 <div class="lg:hidden">
@@ -18,6 +18,10 @@
         <a href="{{ route('admin.rankings.index') }}" class="flex items-center gap-3 border-t border-border px-4 py-3.5 text-sm {{ request()->routeIs('admin.rankings.*') ? 'text-primary' : 'text-text' }}">
             <i class="fa-solid fa-trophy w-4 text-center text-xs text-muted"></i>
             Classements
+        </a>
+        <a href="{{ route('admin.bilans.index') }}" class="flex items-center gap-3 border-t border-border px-4 py-3.5 text-sm {{ request()->routeIs('admin.bilans.*') ? 'text-primary' : 'text-text' }}">
+            <i class="fa-solid fa-clipboard-list w-4 text-center text-xs text-muted"></i>
+            Bilans
         </a>
         <form method="POST" action="{{ route('admin.logout') }}" class="border-t border-border">
             @csrf

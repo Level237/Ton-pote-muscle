@@ -44,11 +44,11 @@ Périmètre **actuel uniquement** (`Product.md`). Statuts : `todo` | `doing` | `
 |----|------|-------|
 | PR-01 | Admin | Programme : titre, période, calendrier. |
 | PR-02 | Admin | Attacher des séances aux jours. |
-| PR-03 | Membre | Fiche programme **publique** (sans compte), CTA Rejoindre. |
-| PR-04 | Membre | Rejoindre : si visiteur → compte/login, puis retour **inscrit** sur ce programme. |
-| PR-04b | Système | Conserver l’intention programme pendant auth. |
-| PR-05 | Membre | Abandonner (statut, pas delete). |
-| PR-06 | Membre | Dashboard : actif, rang, points, prochaine séance, logs. |
+| PR-03 | Membre | Fiche programme publique + CTA Rejoindre — **plus tard**. |
+| PR-04 | Membre | Rejoindre self-serve — **plus tard**. |
+| PR-04b | Système | Intention programme pendant auth — **plus tard**. |
+| PR-05 | Membre | Abandonner (statut, pas delete) — **plus tard**. |
+| PR-06 | Membre | Dashboard privé : Accueil / Semaine / Progrès (plan du coach). |
 | PR-07 | Système | Fin → clos, plus d’inscription ni de points. |
 
 ## Points et classement

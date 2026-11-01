@@ -68,7 +68,10 @@
                                 <p class="truncate text-sm font-medium text-text">{{ $program->title }}</p>
                                 <p class="mt-0.5 truncate text-xs tabular-nums text-muted">
                                     {{ $program->starts_on->format('d/m/Y') }} au {{ $program->ends_on->format('d/m/Y') }}
-                                    · {{ $program->schedule_count }} {{ $program->schedule_count > 1 ? 'séances' : 'séance' }}
+                                    · {{ $program->workout_count }} {{ $program->workout_count > 1 ? 'séances' : 'séance' }}
+                                    @if ($program->rest_count)
+                                        · {{ $program->rest_count }} {{ $program->rest_count > 1 ? 'repos' : 'repos' }}
+                                    @endif
                                 </p>
                             </div>
 

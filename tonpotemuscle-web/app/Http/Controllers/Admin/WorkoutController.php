@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\WorkoutRequest;
 use App\Models\Exercise;
 use App\Models\Workout;
+use App\Models\WorkoutCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,7 @@ class WorkoutController extends Controller
         $search = $request->string('q')->trim()->toString();
 
         $workouts = Workout::query()
+            ->with('category')
             ->withCount('items')
             ->when($archived, fn ($query) => $query->onlyTrashed())
             ->when($search !== '', fn ($query) => $query->where('title', 'like', '%'.$search.'%'))
@@ -102,6 +104,7 @@ class WorkoutController extends Controller
         if (! is_array($items)) {
             $items = $workout->items->map(fn ($item) => [
                 'exercise_id' => $item->exercise_id,
+                'sets' => $item->sets,
                 'reps' => $item->reps,
                 'duration_seconds' => $item->duration_seconds,
                 'rest_seconds' => $item->rest_seconds,
@@ -111,6 +114,7 @@ class WorkoutController extends Controller
         if ($items === []) {
             $items = [[
                 'exercise_id' => '',
+                'sets' => 1,
                 'reps' => '',
                 'duration_seconds' => '',
                 'rest_seconds' => 30,
@@ -119,6 +123,7 @@ class WorkoutController extends Controller
 
         return [
             'workout' => $workout,
+            'categories' => WorkoutCategory::query()->orderBy('title')->get(['id', 'title']),
             'exercises' => Exercise::query()->orderBy('title')->get(['id', 'title']),
             'items' => $items,
         ];
@@ -131,7 +136,9 @@ class WorkoutController extends Controller
     {
         return [
             'title' => $request->string('title')->toString(),
+            'category_id' => $request->input('category_id') ?: null,
             'difficulty' => $request->input('difficulty') ?: null,
+            'notes' => $request->input('notes') ?: null,
         ];
     }
 
@@ -148,17 +155,19 @@ class WorkoutController extends Controller
         foreach ($items as $item) {
             $duration = filled($item['duration_seconds'] ?? null) ? (int) $item['duration_seconds'] : null;
             $reps = filled($item['reps'] ?? null) ? (int) $item['reps'] : null;
+            $sets = max(1, (int) ($item['sets'] ?? 1));
             $rest = (int) ($item['rest_seconds'] ?? 30);
 
             $workout->items()->create([
                 'exercise_id' => $item['exercise_id'],
                 'position' => $position++,
+                'sets' => $sets,
                 'reps' => $reps,
                 'duration_seconds' => $duration,
                 'rest_seconds' => $rest,
             ]);
 
-            $total += ($duration ?? 0) + $rest;
+            $total += (($duration ?? 0) * $sets) + $rest;
         }
 
         $workout->update(['total_duration_seconds' => $total]);

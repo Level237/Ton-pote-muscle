@@ -18,12 +18,33 @@
             >
         </x-admin.form.field>
 
+        <x-admin.form.field name="category_id" label="Catégorie">
+            <select id="category_id" name="category_id" class="{{ $inputClass }}">
+                <option value="">Sans catégorie</option>
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}" @selected((string) old('category_id', $workout->category_id) === (string) $category->id)>
+                        {{ $category->title }}
+                    </option>
+                @endforeach
+            </select>
+        </x-admin.form.field>
+
         <x-admin.form.radios
             name="difficulty"
             label="Niveau"
             :options="WorkoutCatalog::DIFFICULTIES"
             :selected="$workout->difficulty"
         />
+
+        <x-admin.form.field name="notes" label="Note">
+            <textarea
+                id="notes"
+                name="notes"
+                rows="4"
+                maxlength="2000"
+                class="{{ $inputClass }} py-2.5"
+            >{{ old('notes', $workout->notes) }}</textarea>
+        </x-admin.form.field>
 
         <div>
             <div class="mb-2 flex items-center justify-between gap-3">
@@ -62,6 +83,7 @@
                         'index' => '__INDEX__',
                         'item' => [
                             'exercise_id' => '',
+                            'sets' => 1,
                             'reps' => '',
                             'duration_seconds' => '',
                             'rest_seconds' => 30,

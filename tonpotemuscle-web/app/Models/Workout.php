@@ -8,15 +8,24 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['title', 'difficulty', 'total_duration_seconds', 'thumbnail_path'])]
+#[Fillable(['title', 'category_id', 'difficulty', 'notes', 'total_duration_seconds', 'thumbnail_path'])]
 class Workout extends Model
 {
     /** @use HasFactory<WorkoutFactory> */
     use HasFactory, HasUuids, SoftDeletes;
+
+    /**
+     * @return BelongsTo<WorkoutCategory, $this>
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(WorkoutCategory::class, 'category_id');
+    }
 
     /**
      * @return HasMany<WorkoutExercise, $this>

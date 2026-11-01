@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bilan;
 use App\Models\Exercise;
 use App\Models\Program;
 use App\Models\User;
@@ -18,6 +19,7 @@ class DashboardController extends Controller
             'recentPrograms' => Program::query()->latest()->limit(5)->get(),
             'recentWorkouts' => Workout::query()->latest()->limit(5)->get(),
             'recentMembers' => User::query()->members()->latest()->limit(5)->get(),
+            'recentBilans' => Bilan::query()->withCount('questions')->latest()->limit(5)->get(),
         ]);
     }
 

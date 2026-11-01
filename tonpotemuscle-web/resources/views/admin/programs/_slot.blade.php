@@ -1,8 +1,15 @@
 @php
+    use App\Models\ProgramWorkout;
+
     $inputClass = 'min-h-11 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary';
+    $kind = $slot['kind'] ?? (filled($slot['workout_id'] ?? null) ? 'workout' : 'rest');
+    $weekday = null;
+    if (filled($startsOn ?? null) && filled($slot['day_number'] ?? null)) {
+        $weekday = ProgramWorkout::WEEKDAYS[\Illuminate\Support\Carbon::parse($startsOn)->addDays(((int) $slot['day_number']) - 1)->dayOfWeekIso] ?? null;
+    }
 @endphp
 
-<li class="program-slot grid gap-3 rounded-xl border border-border bg-bg p-4 md:grid-cols-[7rem_minmax(0,1fr)_auto] md:items-end">
+<li class="program-slot grid gap-3 rounded-xl border border-border bg-bg p-4 md:grid-cols-[7rem_8rem_minmax(0,1fr)_auto] md:items-end">
     <x-admin.form.field :name="'slots.'.$index.'.day_number'" label="Jour">
         <input
             id="slots-{{ $index }}-day"
@@ -13,14 +20,30 @@
             value="{{ $slot['day_number'] ?? 1 }}"
             class="{{ $inputClass }}"
         >
+        @if ($weekday)
+            <p class="mt-1 text-xs capitalize text-muted">{{ $weekday }}</p>
+        @endif
     </x-admin.form.field>
 
     <div>
+        <label class="mb-1.5 block text-sm font-medium text-text" for="slots-{{ $index }}-kind">Type</label>
+        <select
+            id="slots-{{ $index }}-kind"
+            name="slots[{{ $index }}][kind]"
+            class="js-slot-kind {{ $inputClass }}"
+        >
+            <option value="workout" @selected($kind === 'workout')>Séance</option>
+            <option value="rest" @selected($kind === 'rest')>Repos</option>
+        </select>
+    </div>
+
+    <div class="js-slot-workout-wrap {{ $kind === 'rest' ? 'hidden' : '' }}">
         <label class="mb-1.5 block text-sm font-medium text-text" for="slots-{{ $index }}-workout">Séance</label>
         <select
             id="slots-{{ $index }}-workout"
             name="slots[{{ $index }}][workout_id]"
-            class="{{ $inputClass }}"
+            class="js-slot-workout {{ $inputClass }}"
+            @disabled($kind === 'rest')
         >
             <option value="">Choisir</option>
             @foreach ($workouts as $workout)

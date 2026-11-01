@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BilanController as AdminBilanController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ExerciseController as AdminExerciseController;
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
@@ -48,12 +49,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         ->except('show')
         ->parameters(['seances' => 'workout'])
         ->names('workouts');
+    Route::post('bilans/{bilan}/restore', [AdminBilanController::class, 'restore'])->name('bilans.restore');
+    Route::resource('bilans', AdminBilanController::class)->except('show');
     Route::post('programmes/{program}/restore', [AdminProgramController::class, 'restore'])->name('programs.restore');
     Route::resource('programmes', AdminProgramController::class)
         ->except('show')
         ->parameters(['programmes' => 'program'])
         ->names('programs');
     Route::get('inscrits', [AdminMemberController::class, 'index'])->name('enrollments.index');
+    Route::get('inscrits/{user}', [AdminMemberController::class, 'show'])->name('enrollments.show');
+    Route::get('inscrits/{user}/donner', [AdminMemberController::class, 'give'])->name('enrollments.give');
+    Route::post('inscrits/{user}/donner', [AdminMemberController::class, 'storeGive'])->name('enrollments.give.store');
+    Route::delete('inscrits/{user}/plan/{item}', [AdminMemberController::class, 'destroyPlanItem'])->name('enrollments.plan.destroy');
     Route::post('inscrits/{user}/deactivate', [AdminMemberController::class, 'deactivate'])->name('enrollments.deactivate');
     Route::post('inscrits/{user}/activate', [AdminMemberController::class, 'activate'])->name('enrollments.activate');
     Route::get('classements', [AdminRankingController::class, 'index'])->name('rankings.index');

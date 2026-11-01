@@ -21,7 +21,11 @@ class ProgramController extends Controller
         $search = $request->string('q')->trim()->toString();
 
         $programs = Program::query()
-            ->withCount('schedule')
+            ->withCount([
+                'schedule',
+                'schedule as workout_count' => fn ($query) => $query->whereNotNull('workout_id'),
+                'schedule as rest_count' => fn ($query) => $query->whereNull('workout_id'),
+            ])
             ->when($archived, fn ($query) => $query->onlyTrashed())
             ->when($search !== '', fn ($query) => $query->where('title', 'like', '%'.$search.'%'))
             ->latest()
@@ -105,6 +109,7 @@ class ProgramController extends Controller
         if (! is_array($slots)) {
             $slots = $program->schedule->map(fn ($slot) => [
                 'day_number' => $slot->day_number,
+                'kind' => $slot->isRest() ? 'rest' : 'workout',
                 'workout_id' => $slot->workout_id,
             ])->all();
         }
@@ -112,6 +117,7 @@ class ProgramController extends Controller
         if ($slots === []) {
             $slots = [[
                 'day_number' => 1,
+                'kind' => 'workout',
                 'workout_id' => '',
             ]];
         }
@@ -152,7 +158,7 @@ class ProgramController extends Controller
         foreach ($slots as $slot) {
             $program->schedule()->create([
                 'day_number' => (int) $slot['day_number'],
-                'workout_id' => $slot['workout_id'],
+                'workout_id' => ($slot['kind'] ?? 'workout') === 'rest' ? null : $slot['workout_id'],
             ]);
         }
     }

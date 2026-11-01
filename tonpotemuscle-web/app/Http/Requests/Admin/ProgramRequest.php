@@ -18,7 +18,17 @@ class ProgramRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $slots = collect($this->input('slots', []))
-            ->filter(fn ($slot) => filled($slot['workout_id'] ?? null) && filled($slot['day_number'] ?? null))
+            ->filter(fn ($slot) => filled($slot['day_number'] ?? null))
+            ->map(function ($slot): array {
+                $kind = ($slot['kind'] ?? 'workout') === 'rest' ? 'rest' : 'workout';
+
+                return [
+                    'day_number' => $slot['day_number'],
+                    'kind' => $kind,
+                    'workout_id' => $kind === 'rest' ? null : ($slot['workout_id'] ?? null),
+                ];
+            })
+            ->filter(fn (array $slot): bool => $slot['kind'] === 'rest' || filled($slot['workout_id']))
             ->values()
             ->all();
 
@@ -42,17 +52,23 @@ class ProgramRequest extends FormRequest
             'remove_image' => ['sometimes', 'boolean'],
             'slots' => ['required', 'array', 'min:1'],
             'slots.*.day_number' => ['required', 'integer', 'min:1', 'max:366'],
-            'slots.*.workout_id' => ['required', 'uuid', 'exists:workouts,id'],
+            'slots.*.kind' => ['required', Rule::in(['workout', 'rest'])],
+            'slots.*.workout_id' => ['nullable', 'required_if:slots.*.kind,workout', 'uuid', 'exists:workouts,id'],
         ];
     }
 
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            $days = collect($this->input('slots', []))->pluck('day_number')->all();
+            $slots = collect($this->input('slots', []));
+            $days = $slots->pluck('day_number')->all();
 
             if (count($days) !== count(array_unique($days))) {
                 $validator->errors()->add('slots', 'Chaque jour du calendrier doit être unique.');
+            }
+
+            if ($slots->where('kind', 'workout')->isEmpty()) {
+                $validator->errors()->add('slots', 'Ajoute au moins une séance. Les autres jours peuvent être au repos.');
             }
         });
     }
@@ -73,6 +89,7 @@ class ProgramRequest extends FormRequest
             'image' => 'visuel',
             'slots' => 'calendrier',
             'slots.*.day_number' => 'jour',
+            'slots.*.kind' => 'type',
             'slots.*.workout_id' => 'séance',
         ];
     }

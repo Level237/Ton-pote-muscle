@@ -32,9 +32,19 @@
             <h2 class="mb-3 text-sm font-medium text-muted">Calendrier</h2>
             <ul class="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
                 @foreach ($program->schedule as $slot)
+                    @php
+                        $weekday = \App\Models\ProgramWorkout::WEEKDAYS[$program->starts_on->copy()->addDays($slot->day_number - 1)->dayOfWeekIso] ?? null;
+                    @endphp
                     <li class="flex items-center justify-between gap-4 px-4 py-3.5">
-                        <span class="text-sm tabular-nums text-muted">Jour {{ $slot->day_number }}</span>
-                        <span class="text-sm font-medium text-text">{{ $slot->workout?->title }}</span>
+                        <span class="text-sm tabular-nums text-muted">
+                            Jour {{ $slot->day_number }}
+                            @if ($weekday)
+                                · {{ $weekday }}
+                            @endif
+                        </span>
+                        <span class="text-sm font-medium {{ $slot->isRest() ? 'text-muted' : 'text-text' }}">
+                            {{ $slot->label() }}
+                        </span>
                     </li>
                 @endforeach
             </ul>

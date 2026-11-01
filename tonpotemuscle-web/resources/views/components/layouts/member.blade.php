@@ -14,7 +14,7 @@
     </head>
     <body class="min-h-screen bg-bg text-text antialiased">
         <header class="sticky top-0 z-10 border-b border-border bg-surface">
-            <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+            <div class="mx-auto flex max-w-xl items-center justify-between px-4 py-3">
                 <a href="{{ route('dashboard') }}">
                     <img src="{{ asset('assets/img/logo.webp') }}" alt="Ton Pote Musclé" class="h-8 w-auto">
                 </a>
@@ -26,7 +26,7 @@
                 </form>
             </div>
         </header>
-        <main class="mx-auto max-w-6xl px-6 py-10">
+        <main class="mx-auto max-w-xl px-4 py-6">
             {{ $slot }}
         </main>
     </body>

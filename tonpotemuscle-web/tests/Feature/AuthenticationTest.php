@@ -95,6 +95,7 @@ class AuthenticationTest extends TestCase
             ->assertSee('Exercices')
             ->assertSee('Séances')
             ->assertSee('Programmes')
+            ->assertSee('Bilans')
             ->assertSee('Inscrits')
             ->assertSee('Classements');
     }

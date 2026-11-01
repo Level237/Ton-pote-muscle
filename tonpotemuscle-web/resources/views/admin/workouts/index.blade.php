@@ -69,6 +69,9 @@
                                 <p class="mt-0.5 truncate text-xs tabular-nums text-muted">
                                     {{ $workout->items_count }} {{ $workout->items_count > 1 ? 'exercices' : 'exercice' }}
                                     · {{ $workout->durationMinutes() }} min
+                                    @if ($workout->category)
+                                        · {{ $workout->category->title }}
+                                    @endif
                                     @if ($workout->difficultyLabel())
                                         · {{ $workout->difficultyLabel() }}
                                     @endif

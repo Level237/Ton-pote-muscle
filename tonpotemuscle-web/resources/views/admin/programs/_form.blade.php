@@ -90,6 +90,7 @@
                             'index' => $index,
                             'slot' => $slot,
                             'workouts' => $workouts,
+                            'startsOn' => $startsOn,
                         ])
                     @endforeach
                 </ul>
@@ -102,9 +103,11 @@
                         'index' => '__INDEX__',
                         'slot' => [
                             'day_number' => '',
+                            'kind' => 'rest',
                             'workout_id' => '',
                         ],
                         'workouts' => $workouts,
+                        'startsOn' => $startsOn,
                     ])
                 </template>
             @endif
@@ -154,9 +157,29 @@
 
             let nextIndex = list.querySelectorAll('.program-slot').length;
 
+            const syncKind = (slot) => {
+                const kind = slot.querySelector('.js-slot-kind')?.value;
+                const wrap = slot.querySelector('.js-slot-workout-wrap');
+                const select = slot.querySelector('.js-slot-workout');
+                const isRest = kind === 'rest';
+                wrap?.classList.toggle('hidden', isRest);
+                if (select) {
+                    select.disabled = isRest;
+                    if (isRest) select.value = '';
+                }
+            };
+
             addButton.addEventListener('click', () => {
                 const html = template.innerHTML.replaceAll('__INDEX__', String(nextIndex++));
                 list.insertAdjacentHTML('beforeend', html);
+                const slot = list.lastElementChild;
+                if (slot) syncKind(slot);
+            });
+
+            list.addEventListener('change', (event) => {
+                if (!event.target.classList.contains('js-slot-kind')) return;
+                const slot = event.target.closest('.program-slot');
+                if (slot) syncKind(slot);
             });
 
             list.addEventListener('click', (event) => {
@@ -166,6 +189,8 @@
                     slot.remove();
                 }
             });
+
+            list.querySelectorAll('.program-slot').forEach(syncKind);
         })();
     </script>
 @endif

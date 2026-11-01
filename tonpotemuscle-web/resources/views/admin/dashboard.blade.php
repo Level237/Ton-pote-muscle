@@ -19,6 +19,9 @@
             <x-admin.dashboard.recent-workouts :workouts="$recentWorkouts" />
         </div>
 
-        <x-admin.dashboard.recent-members :members="$recentMembers" />
+        <div class="grid gap-6 lg:grid-cols-2">
+            <x-admin.dashboard.recent-members :members="$recentMembers" />
+            <x-admin.dashboard.recent-bilans :bilans="$recentBilans" />
+        </div>
     </div>
 </x-layouts.admin>

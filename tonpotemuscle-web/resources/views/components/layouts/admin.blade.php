@@ -30,6 +30,9 @@
                     <x-admin.nav-link href="{{ route('admin.programs.index') }}" icon="fa-solid fa-calendar-check" :active="request()->routeIs('admin.programs.*')">
                         Programmes
                     </x-admin.nav-link>
+                    <x-admin.nav-link href="{{ route('admin.bilans.index') }}" icon="fa-solid fa-clipboard-list" :active="request()->routeIs('admin.bilans.*')">
+                        Bilans
+                    </x-admin.nav-link>
                     <x-admin.nav-link href="{{ route('admin.enrollments.index') }}" icon="fa-solid fa-user-group" :active="request()->routeIs('admin.enrollments.*')">
                         Inscrits
                     </x-admin.nav-link>
