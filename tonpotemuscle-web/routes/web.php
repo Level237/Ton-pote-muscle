@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ExerciseController as AdminExerciseController;
+use App\Http\Controllers\Admin\MemberController as AdminMemberController;
 use App\Http\Controllers\Admin\PlaceholderController as AdminPlaceholderController;
 use App\Http\Controllers\Admin\ProgramController as AdminProgramController;
+use App\Http\Controllers\Admin\RankingController as AdminRankingController;
 use App\Http\Controllers\Admin\WorkoutController as AdminWorkoutController;
 use App\Http\Controllers\Auth\LoginAdminController;
 use App\Http\Controllers\Auth\LoginMemberController;
@@ -51,8 +53,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         ->except('show')
         ->parameters(['programmes' => 'program'])
         ->names('programs');
-    Route::get('inscrits', AdminPlaceholderController::class)->name('enrollments.index');
-    Route::get('classements', AdminPlaceholderController::class)->name('rankings.index');
+    Route::get('inscrits', [AdminMemberController::class, 'index'])->name('enrollments.index');
+    Route::post('inscrits/{user}/deactivate', [AdminMemberController::class, 'deactivate'])->name('enrollments.deactivate');
+    Route::post('inscrits/{user}/activate', [AdminMemberController::class, 'activate'])->name('enrollments.activate');
+    Route::get('classements', [AdminRankingController::class, 'index'])->name('rankings.index');
+    Route::get('classements/{program}', [AdminRankingController::class, 'show'])->name('rankings.show');
+    Route::post('classements/{program}/publish', [AdminRankingController::class, 'publish'])->name('rankings.publish');
+    Route::get('classements/{program}/export', [AdminRankingController::class, 'export'])->name('rankings.export');
     Route::get('profil', AdminPlaceholderController::class)->name('profile');
     Route::post('logout', LogoutAdminController::class)->name('logout');
 });

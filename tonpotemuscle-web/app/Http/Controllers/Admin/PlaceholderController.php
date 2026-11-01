@@ -10,16 +10,6 @@ class PlaceholderController extends Controller
     public function __invoke(): View
     {
         $pages = [
-            'admin.enrollments.index' => [
-                'title' => 'Inscrits',
-                'icon' => 'fa-solid fa-user-group',
-                'description' => 'Membres inscrits à un programme.',
-            ],
-            'admin.rankings.index' => [
-                'title' => 'Classements',
-                'icon' => 'fa-solid fa-trophy',
-                'description' => 'Classement provisoire, clôture, publication et export CSV.',
-            ],
             'admin.profile' => [
                 'title' => 'Profil',
                 'icon' => 'fa-solid fa-user',

@@ -24,6 +24,7 @@ use Illuminate\Notifications\Notifiable;
     'fitness_level',
     'main_goal',
     'motivations',
+    'deactivated_at',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -38,6 +39,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'deactivated_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
             'motivations' => 'array',
@@ -55,6 +57,11 @@ class User extends Authenticatable
         return $this->role === UserRole::Member;
     }
 
+    public function isDeactivated(): bool
+    {
+        return $this->deactivated_at !== null;
+    }
+
     /**
      * @param  Builder<User>  $query
      * @return Builder<User>
@@ -62,5 +69,23 @@ class User extends Authenticatable
     public function scopeMembers(Builder $query): Builder
     {
         return $query->where('role', UserRole::Member);
+    }
+
+    /**
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereNull('deactivated_at');
+    }
+
+    /**
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
+    public function scopeDeactivated(Builder $query): Builder
+    {
+        return $query->whereNotNull('deactivated_at');
     }
 }

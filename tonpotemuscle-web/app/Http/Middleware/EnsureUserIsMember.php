@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsMember
@@ -17,6 +18,16 @@ class EnsureUserIsMember
 
         if ($user === null || ! $user->isMember()) {
             abort(403);
+        }
+
+        if ($user->isDeactivated()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('login')
+                ->withErrors(['email' => 'Ce compte a été désactivé.']);
         }
 
         return $next($request);

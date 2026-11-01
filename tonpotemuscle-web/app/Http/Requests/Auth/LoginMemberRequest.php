@@ -52,6 +52,14 @@ class LoginMemberRequest extends FormRequest
             ]);
         }
 
+        if ($user->isDeactivated()) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Ce compte a été désactivé.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

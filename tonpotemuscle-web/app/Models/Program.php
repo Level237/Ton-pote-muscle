@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
@@ -49,6 +50,22 @@ class Program extends Model
     public function schedule(): HasMany
     {
         return $this->hasMany(ProgramWorkout::class)->orderBy('day_number');
+    }
+
+    /**
+     * @return HasMany<ProgramEnrollment, $this>
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(ProgramEnrollment::class);
+    }
+
+    /**
+     * @return HasOne<RankingSnapshot, $this>
+     */
+    public function rankingSnapshot(): HasOne
+    {
+        return $this->hasOne(RankingSnapshot::class);
     }
 
     /**
