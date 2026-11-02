@@ -41,6 +41,7 @@ class BilanController extends Controller
             'bilan' => $bilan,
             'submission' => $submission,
             'answers' => $submission?->valuesByQuestion() ?? [],
+            'onboarding' => $bilan->isDeparture() && $submission === null,
         ]);
     }
 
@@ -71,7 +72,7 @@ class BilanController extends Controller
         });
 
         return redirect()
-            ->route('member.bilans.index')
+            ->route('dashboard')
             ->with('status', 'Bilan enregistré.');
     }
 }

@@ -56,13 +56,7 @@
                 <ul class="divide-y divide-border">
                     @foreach ($workouts as $workout)
                         <li class="flex items-center gap-4 px-4 py-3.5">
-                            @if ($workout->thumbnailUrl())
-                                <img src="{{ $workout->thumbnailUrl() }}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover">
-                            @else
-                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-bg text-muted">
-                                    <i class="fa-solid fa-stopwatch text-sm" aria-hidden="true"></i>
-                                </div>
-                            @endif
+                            <x-cover :src="$workout->thumbnailUrl()" icon="fa-solid fa-stopwatch" />
 
                             <div class="min-w-0 flex-1">
                                 <p class="truncate text-sm font-medium text-text">{{ $workout->title }}</p>

@@ -12,12 +12,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'title',
+    'slug',
     'description',
 ])]
 class Bilan extends Model
 {
+    public const SLUG_DEPARTURE = 'depart';
+
     /** @use HasFactory<BilanFactory> */
     use HasFactory, HasUuids, SoftDeletes;
+
+    public static function departure(): ?self
+    {
+        return static::query()->where('slug', self::SLUG_DEPARTURE)->first();
+    }
+
+    public function isDeparture(): bool
+    {
+        return $this->slug === self::SLUG_DEPARTURE;
+    }
 
     /**
      * @return HasMany<BilanQuestion, $this>

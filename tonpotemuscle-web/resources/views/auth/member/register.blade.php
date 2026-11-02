@@ -7,7 +7,7 @@
                 name="name"
                 label="Nom"
                 autocomplete="name"
-                placeholder="Jean Dupont"
+                placeholder="Entrez votre nom"
                 required
                 autofocus
             />
@@ -16,7 +16,7 @@
                 name="username"
                 label="Pseudo"
                 autocomplete="username"
-                placeholder="jeandupont"
+                placeholder="Entrez votre pseudo"
                 required
             />
         </div>
@@ -26,7 +26,7 @@
             label="Adresse e-mail"
             type="email"
             autocomplete="email"
-            placeholder="nom@exemple.com"
+            placeholder="Entrez votre email"
             required
         />
 

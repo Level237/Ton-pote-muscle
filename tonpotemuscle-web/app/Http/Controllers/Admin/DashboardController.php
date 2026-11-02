@@ -8,6 +8,7 @@ use App\Models\Exercise;
 use App\Models\Program;
 use App\Models\User;
 use App\Models\Workout;
+use App\Models\WorkoutLog;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -18,7 +19,14 @@ class DashboardController extends Controller
             'stats' => $this->stats(),
             'recentPrograms' => Program::query()->latest()->limit(5)->get(),
             'recentWorkouts' => Workout::query()->latest()->limit(5)->get(),
-            'recentMembers' => User::query()->members()->latest()->limit(5)->get(),
+            'recentMembers' => User::query()->members()->latest()->limit(8)->get(),
+            'recentCompletions' => WorkoutLog::query()
+                ->with(['member', 'workout'])
+                ->where('abandoned', false)
+                ->whereNotNull('completed_at')
+                ->latest('completed_at')
+                ->limit(8)
+                ->get(),
             'recentBilans' => Bilan::query()->withCount('questions')->latest()->limit(5)->get(),
         ]);
     }

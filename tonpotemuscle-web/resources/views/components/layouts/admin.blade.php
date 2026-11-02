@@ -53,7 +53,7 @@
             </aside>
 
                 <main class="min-w-0 flex-1 px-4 py-6 pb-24 lg:px-12 lg:py-10 lg:pb-10">
-                <div class="mx-auto max-w-6xl">
+                <div class="mx-auto min-w-0 max-w-6xl">
                     @if (session('status'))
                         <p class="mb-6 rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary" role="status">
                             {{ session('status') }}

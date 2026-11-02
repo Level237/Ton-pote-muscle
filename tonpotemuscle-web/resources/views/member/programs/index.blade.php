@@ -11,9 +11,7 @@
                 @foreach ($enrollments as $enrollment)
                     <li>
                         <a href="{{ route('member.programs.show', $enrollment->program) }}" class="flex items-center gap-4 px-4 py-3.5 hover:bg-white/[0.03]">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-bg text-muted">
-                                <i class="fa-solid fa-calendar-check text-sm" aria-hidden="true"></i>
-                            </div>
+                            <x-cover :src="$enrollment->program->imageUrl()" icon="fa-solid fa-calendar-check" />
                             <div class="min-w-0 flex-1">
                                 <p class="truncate text-sm font-medium text-text">{{ $enrollment->program->title }}</p>
                                 <p class="mt-0.5 truncate text-xs text-muted">

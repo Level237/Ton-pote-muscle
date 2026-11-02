@@ -31,7 +31,23 @@ class AdminProgramTest extends TestCase
             ->get(route('admin.programs.index'))
             ->assertOk()
             ->assertSee('4 semaines')
-            ->assertSee('Nouveau programme');
+            ->assertSee('Nouveau programme')
+            ->assertSee('fa-calendar-check');
+    }
+
+    public function test_admin_program_index_uses_icon_when_image_file_is_missing(): void
+    {
+        $admin = User::factory()->admin()->create();
+        Program::factory()->create([
+            'title' => 'Sans visuel',
+            'image_path' => 'programs/missing.webp',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.programs.index'))
+            ->assertOk()
+            ->assertDontSee('programs/missing.webp', false)
+            ->assertSee('fa-calendar-check');
     }
 
     public function test_admin_can_search_programs(): void

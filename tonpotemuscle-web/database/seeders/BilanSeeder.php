@@ -11,7 +11,7 @@ class BilanSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->seedBilan('Bilan de santé', 'Questionnaire de santé à remplir avant de commencer.', [
+        $this->seedBilan('sante', 'Bilan de santé', 'Questionnaire de santé à remplir avant de commencer.', [
             [
                 'title' => 'Avez-vous une blessure ou une douleur en cours ?',
                 'type' => BilanQuestionType::Choice,
@@ -36,7 +36,7 @@ class BilanSeeder extends Seeder
             ],
         ]);
 
-        $this->seedBilan('Bilan de départ', 'Objectifs, disponibilités et contexte d’entraînement.', [
+        $this->seedBilan('depart', 'Bilan de départ', 'Objectifs, disponibilités et contexte d’entraînement.', [
             [
                 'title' => 'Objectif principal',
                 'type' => BilanQuestionType::Choice,
@@ -83,7 +83,7 @@ class BilanSeeder extends Seeder
             ],
         ]);
 
-        $this->seedBilan('Bilan de mesure', 'Poids, mensurations, âge et taille.', [
+        $this->seedBilan('mesure', 'Bilan de mesure', 'Poids, mensurations, âge et taille.', [
             [
                 'title' => 'Quel est votre poids actuel',
                 'type' => BilanQuestionType::Number,
@@ -122,17 +122,21 @@ class BilanSeeder extends Seeder
     /**
      * @param  list<array{title: string, type: BilanQuestionType, options?: list<string>}>  $questions
      */
-    private function seedBilan(string $title, string $description, array $questions): void
+    private function seedBilan(string $slug, string $title, string $description, array $questions): void
     {
         $bilan = Bilan::query()->firstOrCreate(
-            ['title' => $title],
+            ['slug' => $slug],
             [
                 'id' => (string) Str::uuid(),
+                'title' => $title,
                 'description' => $description,
             ],
         );
 
-        $bilan->update(['description' => $description]);
+        $bilan->update([
+            'title' => $title,
+            'description' => $description,
+        ]);
         $bilan->questions()->delete();
 
         foreach ($questions as $index => $question) {

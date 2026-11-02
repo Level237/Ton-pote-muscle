@@ -179,6 +179,8 @@ class MemberLiveWorkoutTest extends TestCase
         $item = $assignment->items()->first();
         $item->load('workout.items.exercise');
 
+        $this->assertNotEmpty($item->uuid);
+
         return [$member, $item, $animated, $plain];
     }
 }

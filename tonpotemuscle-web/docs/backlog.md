@@ -17,6 +17,8 @@ Périmètre **actuel uniquement** (`Product.md`). Statuts : `todo` | `doing` | `
 | PROF-02 | Membre | Modification de ces paramètres. |
 | NAV-01 | Membre | Sidebar desktop + tab bar mobile : Accueil, Mes programmes, Bilans, Profil. |
 | BIL-01 | Membre | Liste des bilans + réponses (une soumission par bilan, modifiable). |
+| BIL-02 | Membre | Bilan de départ juste après l’inscription. |
+| BIL-03 | Admin | Résultats des bilans sur la fiche inscrit. |
 | PR-09 | Membre | Pseudo visible au classement (pas l’e-mail). |
 
 ## Catalogue

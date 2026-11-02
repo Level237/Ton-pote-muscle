@@ -9,6 +9,7 @@ use App\Models\Bilan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class BilanController extends Controller
@@ -41,7 +42,7 @@ class BilanController extends Controller
     public function store(BilanRequest $request): RedirectResponse
     {
         DB::transaction(function () use ($request): void {
-            $bilan = Bilan::query()->create($this->payload($request));
+            $bilan = Bilan::query()->create($this->payload($request, new Bilan));
             $this->syncQuestions($bilan, $request->input('questions', []));
         });
 
@@ -60,7 +61,7 @@ class BilanController extends Controller
     public function update(BilanRequest $request, Bilan $bilan): RedirectResponse
     {
         DB::transaction(function () use ($request, $bilan): void {
-            $bilan->update($this->payload($request));
+            $bilan->update($this->payload($request, $bilan));
             $this->syncQuestions($bilan, $request->input('questions', []));
         });
 
@@ -119,10 +120,13 @@ class BilanController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function payload(BilanRequest $request): array
+    private function payload(BilanRequest $request, Bilan $bilan): array
     {
+        $title = $request->string('title')->toString();
+
         return [
-            'title' => $request->string('title')->toString(),
+            'title' => $title,
+            'slug' => $bilan->slug ?: Str::slug($title),
             'description' => $request->input('description') ?: null,
         ];
     }

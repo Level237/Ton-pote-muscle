@@ -57,7 +57,8 @@ Garde-fous : 1 log par séance et par jour ; durée déclarée bornée ; badges 
 
 ### Membre
 
-- Auth. Espace **privé** : le membre voit le plan que le coach lui a donné.
+- Auth. Après inscription : **bilan de départ** obligatoire, puis dashboard.
+- Espace **privé** : le membre voit le plan que le coach lui a donné. Le coach lit les réponses des bilans sur la fiche inscrit.
 - Navigation : sidebar (grand écran) / tab bar (petit écran) — Accueil, Mes programmes, Bilans, Profil.
 - Accueil : Accueil / Semaine / Progrès (séances du calendrier, à rattraper, stats).
 - Mes programmes : programmes donnés par le coach.

@@ -57,6 +57,11 @@ class MemberController extends Controller
     {
         abort_unless($user->isMember(), 404);
 
+        $user->load([
+            'bilanSubmissions.bilan',
+            'bilanSubmissions.answers.question',
+        ]);
+
         return view('admin.members.show', array_merge(
             MemberTraining::board($user, $request),
             ['member' => $user],

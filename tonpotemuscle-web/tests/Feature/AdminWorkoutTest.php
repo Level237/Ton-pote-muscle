@@ -31,7 +31,23 @@ class AdminWorkoutTest extends TestCase
             ->get(route('admin.workouts.index'))
             ->assertOk()
             ->assertSee('Full body')
-            ->assertSee('Nouvelle séance');
+            ->assertSee('Nouvelle séance')
+            ->assertSee('fa-stopwatch');
+    }
+
+    public function test_admin_workout_index_uses_icon_when_thumbnail_file_is_missing(): void
+    {
+        $admin = User::factory()->admin()->create();
+        Workout::factory()->create([
+            'title' => 'Sans visuel',
+            'thumbnail_path' => 'workouts/missing.webp',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.workouts.index'))
+            ->assertOk()
+            ->assertDontSee('workouts/missing.webp', false)
+            ->assertSee('fa-stopwatch');
     }
 
     public function test_admin_can_search_workouts(): void

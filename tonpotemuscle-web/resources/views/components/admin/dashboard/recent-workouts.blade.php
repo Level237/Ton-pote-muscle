@@ -10,8 +10,9 @@
 >
     <ul class="divide-y divide-border px-5">
         @foreach ($workouts as $workout)
-            <li class="flex items-center justify-between gap-4 py-3.5">
-                <div class="min-w-0">
+            <li class="flex items-center justify-between gap-3 py-3.5">
+                <x-cover :src="$workout->thumbnailUrl()" icon="fa-solid fa-stopwatch" />
+                <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-medium text-text">{{ $workout->title }}</p>
                     <p class="mt-0.5 text-xs tabular-nums text-muted">
                         {{ $workout->durationMinutes() }} min

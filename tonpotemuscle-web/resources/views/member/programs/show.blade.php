@@ -4,6 +4,7 @@
             <a href="{{ route('member.programs.index') }}" class="text-sm font-medium text-muted hover:text-primary">
                 ← Mes programmes
             </a>
+            <x-cover :src="$program->imageUrl()" icon="fa-solid fa-calendar-check" size="hero" class="mt-4" />
             <h1 class="mt-3 font-display text-2xl font-bold uppercase tracking-wide">{{ $program->title }}</h1>
             @if ($program->description)
                 <p class="mt-2 text-sm text-muted">{{ $program->description }}</p>

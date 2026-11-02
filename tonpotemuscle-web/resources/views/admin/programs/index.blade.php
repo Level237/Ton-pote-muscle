@@ -56,13 +56,7 @@
                 <ul class="divide-y divide-border">
                     @foreach ($programs as $program)
                         <li class="flex items-center gap-4 px-4 py-3.5">
-                            @if ($program->imageUrl())
-                                <img src="{{ $program->imageUrl() }}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover">
-                            @else
-                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-bg text-muted">
-                                    <i class="fa-solid fa-calendar-check text-sm" aria-hidden="true"></i>
-                                </div>
-                            @endif
+                            <x-cover :src="$program->imageUrl()" icon="fa-solid fa-calendar-check" />
 
                             <div class="min-w-0 flex-1">
                                 <p class="truncate text-sm font-medium text-text">{{ $program->title }}</p>

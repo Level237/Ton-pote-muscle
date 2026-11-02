@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProgramStatus;
+use App\Support\PublicFile;
 use App\Support\WorkoutCatalog;
 use Database\Factories\ProgramFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -13,7 +14,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
     'title',
@@ -96,11 +96,7 @@ class Program extends Model
 
     public function imageUrl(): ?string
     {
-        if (! $this->image_path) {
-            return null;
-        }
-
-        return Storage::disk('public')->url($this->image_path);
+        return PublicFile::url($this->image_path);
     }
 
     public function publicUrl(): string

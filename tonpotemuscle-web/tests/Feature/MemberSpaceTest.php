@@ -53,6 +53,79 @@ class MemberSpaceTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_new_member_is_sent_to_departure_bilan(): void
+    {
+        $bilan = Bilan::factory()->create([
+            'title' => 'Bilan de départ',
+            'slug' => Bilan::SLUG_DEPARTURE,
+        ]);
+        $question = $bilan->questions()->create([
+            'position' => 1,
+            'title' => 'Objectif principal',
+            'type' => BilanQuestionType::Text,
+        ]);
+
+        $this->post(route('register'), [
+            'name' => 'Paul Martin',
+            'username' => 'paul',
+            'email' => 'paul@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])->assertRedirect(route('member.bilans.show', $bilan));
+
+        $member = User::query()->where('email', 'paul@example.com')->first();
+
+        $this->actingAs($member)
+            ->get(route('dashboard'))
+            ->assertRedirect(route('member.bilans.show', $bilan));
+
+        $this->actingAs($member)
+            ->get(route('member.bilans.show', $bilan))
+            ->assertOk()
+            ->assertSee('Suivant')
+            ->assertSee('Objectif principal');
+
+        $this->actingAs($member)
+            ->post(route('member.bilans.store', $bilan), [
+                'answers' => [
+                    $question->id => 'Remise en forme',
+                ],
+            ])
+            ->assertRedirect(route('dashboard'));
+
+        $this->actingAs($member)
+            ->get(route('dashboard'))
+            ->assertOk();
+    }
+
+    public function test_admin_sees_member_bilan_answers(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create(['name' => 'Marie Dupont']);
+        $bilan = Bilan::factory()->create(['title' => 'Bilan de départ', 'slug' => Bilan::SLUG_DEPARTURE]);
+        $question = $bilan->questions()->create([
+            'position' => 1,
+            'title' => 'Objectif principal',
+            'type' => BilanQuestionType::Text,
+        ]);
+        $submission = $member->bilanSubmissions()->create([
+            'bilan_id' => $bilan->id,
+            'submitted_at' => now(),
+        ]);
+        $submission->answers()->create([
+            'bilan_question_id' => $question->id,
+            'value' => 'Remise en forme',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.enrollments.show', $member))
+            ->assertOk()
+            ->assertSee('Bilans')
+            ->assertSee('Bilan de départ')
+            ->assertSee('Objectif principal')
+            ->assertSee('Remise en forme');
+    }
+
     public function test_member_can_fill_a_bilan(): void
     {
         $member = User::factory()->member()->create();
@@ -97,7 +170,7 @@ class MemberSpaceTest extends TestCase
                     $text->id => 'RAS',
                 ],
             ])
-            ->assertRedirect(route('member.bilans.index'));
+            ->assertRedirect(route('dashboard'));
 
         $this->assertDatabaseHas('bilan_submissions', [
             'user_id' => $member->id,
@@ -115,7 +188,8 @@ class MemberSpaceTest extends TestCase
         $this->actingAs($member)
             ->get(route('member.bilans.show', $bilan))
             ->assertOk()
-            ->assertSee('RAS');
+            ->assertSee('RAS')
+            ->assertSee('Suivant');
     }
 
     public function test_member_can_update_profile(): void

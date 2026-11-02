@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicFile;
 use App\Support\WorkoutCatalog;
 use Database\Factories\WorkoutFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['title', 'category_id', 'difficulty', 'notes', 'total_duration_seconds', 'thumbnail_path'])]
 class Workout extends Model
@@ -51,10 +51,6 @@ class Workout extends Model
 
     public function thumbnailUrl(): ?string
     {
-        if (! $this->thumbnail_path) {
-            return null;
-        }
-
-        return Storage::disk('public')->url($this->thumbnail_path);
+        return PublicFile::url($this->thumbnail_path);
     }
 }

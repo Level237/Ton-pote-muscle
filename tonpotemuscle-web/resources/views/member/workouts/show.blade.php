@@ -2,6 +2,7 @@
     <div class="pb-16">
         <a href="{{ route('dashboard') }}" class="text-sm text-muted hover:text-text">← Retour</a>
 
+        <x-cover :src="$workout->thumbnailUrl()" icon="fa-solid fa-stopwatch" size="hero" class="mt-4" />
         <h1 class="mt-3 text-2xl font-bold text-text">{{ $workout->title }}</h1>
         <p class="mt-1 text-sm text-muted">
             {{ $workout->durationMinutes() }} min

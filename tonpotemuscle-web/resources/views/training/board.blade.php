@@ -174,7 +174,10 @@
                         </div>
                     </div>
                     @if ($day['item'] && ! $day['item']->isRest())
-                        <p class="mt-2 text-sm font-medium text-text">{{ $day['item']->label() }}</p>
+                        <div class="mt-3 flex items-center gap-3">
+                            <x-cover :src="$day['item']->workout?->thumbnailUrl()" icon="fa-solid fa-stopwatch" />
+                            <p class="min-w-0 truncate text-sm font-medium text-text">{{ $day['item']->label() }}</p>
+                        </div>
                         @if ($day['item']->workout?->items)
                             <ul class="mt-1 space-y-0.5 text-sm text-muted">
                                 @foreach ($day['item']->workout->items as $row)

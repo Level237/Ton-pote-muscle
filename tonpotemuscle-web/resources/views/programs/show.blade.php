@@ -1,11 +1,6 @@
 <x-layouts.public :title="$program->title">
     <article class="mx-auto max-w-3xl space-y-8">
-        @if ($program->imageUrl())
-            <div class="relative overflow-hidden rounded-[20px]">
-                <img src="{{ $program->imageUrl() }}" alt="" class="h-56 w-full object-cover lg:h-72">
-                <div class="absolute inset-0 bg-black/45"></div>
-            </div>
-        @endif
+        <x-cover :src="$program->imageUrl()" icon="fa-solid fa-calendar-check" size="hero" class="rounded-[20px]" />
 
         <header class="space-y-3">
             <p class="text-xs font-medium uppercase tracking-wider text-muted">

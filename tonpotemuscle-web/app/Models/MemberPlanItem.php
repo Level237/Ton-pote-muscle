@@ -5,8 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 #[Fillable([
+    'uuid',
     'user_id',
     'member_assignment_id',
     'planned_on',
@@ -15,6 +17,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class MemberPlanItem extends Model
 {
+    protected static function booted(): void
+    {
+        static::creating(function (self $item): void {
+            $item->uuid ??= (string) Str::uuid();
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     /**
      * @return array<string, string>
      */

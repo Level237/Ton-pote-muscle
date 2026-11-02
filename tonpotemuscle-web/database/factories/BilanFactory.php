@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Bilan;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Bilan>
@@ -17,6 +18,7 @@ class BilanFactory extends Factory
     {
         return [
             'title' => fake()->unique()->words(3, true),
+            'slug' => Str::slug(fake()->unique()->words(3, true)),
             'description' => fake()->optional()->sentence(),
         ];
     }

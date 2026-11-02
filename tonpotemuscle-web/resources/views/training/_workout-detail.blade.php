@@ -2,7 +2,8 @@
     $workout = $item->workout;
 @endphp
 
-<h2 class="mt-2 font-display text-2xl font-bold uppercase leading-none tracking-wide text-text">{{ $item->label() }}</h2>
+<x-cover :src="$workout?->thumbnailUrl()" icon="fa-solid fa-stopwatch" size="hero" class="mt-3" />
+<h2 class="mt-3 font-display text-2xl font-bold uppercase leading-none tracking-wide text-text">{{ $item->label() }}</h2>
 @if ($workout)
     <p class="mt-2 text-sm text-muted">
         @if ($workout->category)

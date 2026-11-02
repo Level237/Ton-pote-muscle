@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterMemberRequest;
+use App\Models\Bilan;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -27,6 +28,10 @@ class RegisterMemberController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard');
+        $departure = Bilan::departure();
+
+        return $departure
+            ? redirect()->route('member.bilans.show', $departure)
+            : redirect()->route('dashboard');
     }
 }
