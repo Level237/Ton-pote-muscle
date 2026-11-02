@@ -21,6 +21,9 @@ class MemberDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('Bonjour Marie')
             ->assertSee('Accueil')
+            ->assertSee('Mes programmes')
+            ->assertSee('Bilans')
+            ->assertSee('Profil')
             ->assertSee('Semaine')
             ->assertSee('Progrès')
             ->assertSee('Ton coach ne t’a pas encore donné de séance')
@@ -39,7 +42,8 @@ class MemberDashboardTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Pompes & abdos')
-            ->assertSee('À faire aujourd’hui');
+            ->assertSee('À faire aujourd’hui')
+            ->assertSee('Débuter ma séance');
 
         $this->actingAs($member)
             ->get(route('dashboard', ['vue' => 'semaine']))

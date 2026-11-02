@@ -96,7 +96,7 @@
             <input id="gif" name="gif" type="file" accept="image/gif,image/webp" class="block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-surface file:px-3 file:py-2 file:text-sm file:font-medium file:text-text">
         </x-admin.form.field>
 
-        <x-admin.form.field name="video_url" label="URL vidéo">
+        <x-admin.form.field name="video_url" label="URL vidéo" hint="Lien YouTube, Vimeo ou autre. Sans GIF, le membre ouvre cette démo.">
             <input
                 id="video_url"
                 name="video_url"

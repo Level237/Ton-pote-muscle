@@ -14,7 +14,11 @@ use App\Http\Controllers\Auth\LogoutAdminController;
 use App\Http\Controllers\Auth\LogoutMemberController;
 use App\Http\Controllers\Auth\RegisterMemberController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\Member\BilanController as MemberBilanController;
 use App\Http\Controllers\Member\DashboardController;
+use App\Http\Controllers\Member\LiveWorkoutController;
+use App\Http\Controllers\Member\ProfileController as MemberProfileController;
+use App\Http\Controllers\Member\ProgramController as MemberProgramController;
 use App\Http\Controllers\ProgramController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +38,17 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware(['auth', 'member'])->group(function (): void {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('seances/{item}', [LiveWorkoutController::class, 'show'])->name('member.workouts.show');
+    Route::post('seances/{item}/demarrer', [LiveWorkoutController::class, 'start'])->name('member.workouts.start');
+    Route::get('seances/{item}/live', [LiveWorkoutController::class, 'live'])->name('member.workouts.live');
+    Route::post('seances/{item}/live', [LiveWorkoutController::class, 'complete'])->name('member.workouts.complete');
+    Route::get('mes-programmes', [MemberProgramController::class, 'index'])->name('member.programs.index');
+    Route::get('mes-programmes/{program}', [MemberProgramController::class, 'show'])->name('member.programs.show');
+    Route::get('bilans', [MemberBilanController::class, 'index'])->name('member.bilans.index');
+    Route::get('bilans/{bilan}', [MemberBilanController::class, 'show'])->name('member.bilans.show');
+    Route::post('bilans/{bilan}', [MemberBilanController::class, 'store'])->name('member.bilans.store');
+    Route::get('profil', [MemberProfileController::class, 'edit'])->name('member.profile.edit');
+    Route::put('profil', [MemberProfileController::class, 'update'])->name('member.profile.update');
     Route::post('logout', LogoutMemberController::class)->name('logout');
 });
 

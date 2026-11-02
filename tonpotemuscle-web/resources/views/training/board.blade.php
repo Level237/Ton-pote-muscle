@@ -93,10 +93,24 @@
         @foreach ($days as $day)
             <article class="js-day-panel rounded-xl border border-border bg-surface p-5 {{ $day['is_today'] ? '' : 'hidden' }}" data-day="{{ $day['key'] }}">
                 @if ($day['item'] && ! $day['item']->isRest())
-                    @if ($day['is_today'])
+                    @if ($day['status'] === 'done')
+                        <p class="mb-3 text-[11px] font-bold uppercase tracking-wider text-primary">
+                            {{ $day['is_today'] ? 'Faite aujourd’hui' : 'Faite' }}
+                        </p>
+                    @elseif ($day['is_today'])
                         <p class="mb-3 text-[11px] font-bold uppercase tracking-wider text-primary">À faire aujourd’hui</p>
+                    @elseif ($day['status'] === 'missed')
+                        <p class="mb-3 text-[11px] font-bold uppercase tracking-wider text-danger">Manquée</p>
                     @endif
                     @include('training._workout-detail', ['item' => $day['item']])
+                    @if (! $coach && $day['is_today'] && ! $day['done'])
+                        <a
+                            href="{{ route('member.workouts.show', $day['item']) }}"
+                            class="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-4 font-display text-sm font-bold uppercase tracking-wider text-bg transition-colors hover:bg-primary-hover"
+                        >
+                            Débuter ma séance
+                        </a>
+                    @endif
                 @else
                     <p class="text-sm text-muted">
                         @if ($day['is_today'] && $weekWorkouts === 0 && $catchUp->isEmpty())

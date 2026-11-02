@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'user_id',
@@ -30,7 +31,7 @@ class WorkoutLog extends Model
     protected function casts(): array
     {
         return [
-            'performed_on' => 'date',
+            'performed_on' => 'date:Y-m-d',
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
             'abandoned' => 'boolean',
@@ -53,8 +54,16 @@ class WorkoutLog extends Model
         return $this->belongsTo(Workout::class);
     }
 
+    /**
+     * @return HasMany<WorkoutLogExercise, $this>
+     */
+    public function exercises(): HasMany
+    {
+        return $this->hasMany(WorkoutLogExercise::class)->orderBy('position');
+    }
+
     public function isCompleted(): bool
     {
-        return ! $this->abandoned;
+        return $this->completed_at !== null && ! $this->abandoned;
     }
 }

@@ -80,6 +80,22 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<MemberAssignment, $this>
+     */
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(MemberAssignment::class);
+    }
+
+    /**
+     * @return HasMany<BilanSubmission, $this>
+     */
+    public function bilanSubmissions(): HasMany
+    {
+        return $this->hasMany(BilanSubmission::class);
+    }
+
+    /**
      * @param  Builder<User>  $query
      * @return Builder<User>
      */

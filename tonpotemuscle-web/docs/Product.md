@@ -58,9 +58,13 @@ Garde-fous : 1 log par séance et par jour ; durée déclarée bornée ; badges 
 ### Membre
 
 - Auth. Espace **privé** : le membre voit le plan que le coach lui a donné.
-- Dashboard : Accueil / Semaine / Progrès (séances du calendrier, à rattraper, stats).
-- Profil (genre, objectif, niveaux, taille, poids, motivations) et modification — ensuite.
-- Séance live ou déclarée — ensuite.
+- Navigation : sidebar (grand écran) / tab bar (petit écran) — Accueil, Mes programmes, Bilans, Profil.
+- Accueil : Accueil / Semaine / Progrès (séances du calendrier, à rattraper, stats).
+- Mes programmes : programmes donnés par le coach.
+- Bilans : questionnaires à remplir (santé, départ, mesure…).
+- Profil (genre, objectif, niveaux, taille, poids, motivations) et modification.
+- Séance live : Débuter depuis Accueil → détail (GIF animé s’il existe) → Commencez → player (timer, pause, skip).
+- Séance déclarée — ensuite.
 - Classement / points / partage — ensuite, une fois les logs en place.
 
 ### 6.1 Rejoindre un programme (plus tard)

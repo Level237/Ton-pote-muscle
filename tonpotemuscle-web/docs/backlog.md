@@ -15,6 +15,8 @@ Périmètre **actuel uniquement** (`Product.md`). Statuts : `todo` | `doing` | `
 | DS-01 | Tous | `#e6f419`, fond membre sombre, logo `/assets/img/logo.webp`. |
 | PROF-01 | Membre | Genre, taille, poids, objectif, niveaux, motivations. |
 | PROF-02 | Membre | Modification de ces paramètres. |
+| NAV-01 | Membre | Sidebar desktop + tab bar mobile : Accueil, Mes programmes, Bilans, Profil. |
+| BIL-01 | Membre | Liste des bilans + réponses (une soumission par bilan, modifiable). |
 | PR-09 | Membre | Pseudo visible au classement (pas l’e-mail). |
 
 ## Catalogue

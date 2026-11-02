@@ -52,6 +52,13 @@ class Exercise extends Model
         return $this->publicUrl($this->gif_path);
     }
 
+    public function demoUrl(): ?string
+    {
+        $url = trim((string) $this->video_url);
+
+        return $url !== '' ? $url : null;
+    }
+
     /**
      * @return list<string>
      */

@@ -26,4 +26,12 @@ class Bilan extends Model
     {
         return $this->hasMany(BilanQuestion::class)->orderBy('position');
     }
+
+    /**
+     * @return HasMany<BilanSubmission, $this>
+     */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(BilanSubmission::class);
+    }
 }
