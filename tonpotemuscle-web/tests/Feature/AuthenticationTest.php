@@ -11,11 +11,34 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_landing_page_is_displayed(): void
+    public function test_home_shows_login_with_seo_tags(): void
     {
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('Inscription');
+            ->assertSee('Connexion')
+            ->assertSee('<title>Ton Pote Musclé</title>', false)
+            ->assertSee('name="description"', false)
+            ->assertSee('Ton corps, ton rythme', false)
+            ->assertSee('property="og:image"', false)
+            ->assertSee('/assets/img/logo.webp', false);
+    }
+
+    public function test_home_redirects_member_to_dashboard(): void
+    {
+        $member = User::factory()->member()->create();
+
+        $this->actingAs($member)
+            ->get(route('home'))
+            ->assertRedirect(route('dashboard'));
+    }
+
+    public function test_home_redirects_admin_to_admin_dashboard(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->get(route('home'))
+            ->assertRedirect(route('admin.dashboard'));
     }
 
     public function test_member_can_register(): void
@@ -24,6 +47,7 @@ class AuthenticationTest extends TestCase
             'name' => 'Marie Dupont',
             'username' => 'marie',
             'email' => 'marie@example.com',
+            'phone' => '06 12 34 56 78',
             'password' => 'password',
             'password_confirmation' => 'password',
         ])->assertRedirect(route('dashboard'));
@@ -32,8 +56,40 @@ class AuthenticationTest extends TestCase
         $this->assertDatabaseHas('users', [
             'email' => 'marie@example.com',
             'username' => 'marie',
+            'phone' => '0612345678',
             'role' => UserRole::Member->value,
         ]);
+    }
+
+    public function test_member_phone_is_stored_as_typed(): void
+    {
+        $this->post(route('register'), [
+            'name' => 'Paul Martin',
+            'username' => 'paul',
+            'email' => 'paul@example.com',
+            'phone' => '690394365',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])->assertRedirect(route('dashboard'));
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'paul@example.com',
+            'phone' => '690394365',
+        ]);
+    }
+
+    public function test_member_cannot_register_without_phone(): void
+    {
+        $this->from(route('register'))
+            ->post(route('register'), [
+                'name' => 'Marie Dupont',
+                'username' => 'marie',
+                'email' => 'marie@example.com',
+                'password' => 'password',
+                'password_confirmation' => 'password',
+            ])
+            ->assertRedirect(route('register'))
+            ->assertSessionHasErrors('phone');
     }
 
     public function test_member_can_log_in(): void

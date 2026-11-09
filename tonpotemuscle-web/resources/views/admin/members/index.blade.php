@@ -61,6 +61,9 @@
                                 </p>
                                 <p class="mt-0.5 truncate text-xs text-muted">
                                     {{ $member->email }}
+                                    @if ($member->phone)
+                                        · {{ $member->phone }}
+                                    @endif
                                     · {{ $member->created_at->format('d/m/Y') }}
                                 </p>
                             </div>

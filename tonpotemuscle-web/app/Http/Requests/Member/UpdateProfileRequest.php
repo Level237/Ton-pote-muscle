@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Member;
 
 use App\Support\MemberProfile;
+use App\Support\PhoneNumber;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -11,6 +12,13 @@ class UpdateProfileRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user()?->isMember() ?? false;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'phone' => PhoneNumber::normalize($this->input('phone')),
+        ]);
     }
 
     /**
@@ -29,6 +37,13 @@ class UpdateProfileRequest extends FormRequest
                 'min:3',
                 'max:30',
                 Rule::unique('users', 'username')->ignore($userId),
+            ],
+            'phone' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('users', 'phone')->ignore($userId),
+                PhoneNumber::rule(),
             ],
             'gender' => ['nullable', Rule::in(array_keys(MemberProfile::GENDERS))],
             'height_cm' => ['nullable', 'integer', 'min:100', 'max:250'],
@@ -49,6 +64,7 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name' => $this->string('name')->toString(),
             'username' => $this->string('username')->toString(),
+            'phone' => $this->string('phone')->toString(),
             'gender' => $this->input('gender') ?: null,
             'height_cm' => $this->input('height_cm') ?: null,
             'weight_kg' => $this->input('weight_kg') ?: null,
@@ -67,6 +83,7 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name' => 'nom',
             'username' => 'pseudo',
+            'phone' => 'numéro de téléphone',
             'gender' => 'sexe',
             'height_cm' => 'taille',
             'weight_kg' => 'poids',

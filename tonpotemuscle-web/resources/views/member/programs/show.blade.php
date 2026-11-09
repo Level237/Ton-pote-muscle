@@ -11,6 +11,18 @@
             @endif
         </div>
 
+        @if ($rankEntry)
+            <section class="space-y-4">
+                <x-share.card-rank :entry="$rankEntry" :program="$program" />
+                <x-share.actions
+                    :url="$rankEntry->shareUrl()"
+                    :title="\App\Support\ShareCopy::rankTitle($rankEntry)"
+                    :text="\App\Support\ShareCopy::rankText($rankEntry)"
+                    primary="Partager mon rang"
+                />
+            </section>
+        @endif
+
         @if ($assignments->isEmpty())
             <p class="rounded-xl border border-border bg-surface px-5 py-8 text-sm text-muted">
                 Aucune semaine n’a encore été placée sur ton calendrier.

@@ -30,6 +30,15 @@
             required
         />
 
+        <x-auth.field
+            name="phone"
+            label="Numéro de téléphone"
+            type="tel"
+            autocomplete="tel"
+            placeholder="06 12 34 56 78"
+            required
+        />
+
         <div class="grid gap-4 sm:grid-cols-2">
             <x-auth.field
                 name="password"

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Program;
 use App\Models\RankingSnapshot;
 use App\Support\ProgramRanking;
+use App\Support\ShareToken;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -67,6 +68,7 @@ class RankingController extends Controller
                     'points' => $row['points'],
                     'live_count' => $row['live_count'],
                     'username' => $row['username'],
+                    'share_token' => ShareToken::unique(),
                 ]);
             }
 

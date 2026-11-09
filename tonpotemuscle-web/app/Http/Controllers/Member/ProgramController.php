@@ -35,10 +35,21 @@ class ProgramController extends Controller
             ->latest('starts_on')
             ->get();
 
+        $program->load('rankingSnapshot.entries.user');
+        $rankEntry = $program->rankingSnapshot?->entries
+            ->firstWhere('user_id', $request->user()->id);
+
+        if ($rankEntry) {
+            $rankEntry->ensureShareToken();
+            $program->rankingSnapshot->setRelation('program', $program);
+            $rankEntry->setRelation('snapshot', $program->rankingSnapshot);
+        }
+
         return view('member.programs.show', [
             'program' => $program,
             'enrollment' => $enrollment,
             'assignments' => $assignments,
+            'rankEntry' => $rankEntry,
         ]);
     }
 }

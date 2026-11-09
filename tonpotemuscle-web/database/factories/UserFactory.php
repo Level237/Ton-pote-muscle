@@ -26,6 +26,7 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'username' => Str::slug($username),
             'email' => fake()->unique()->safeEmail(),
+            'phone' => fake()->unique()->numerify('06########'),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
@@ -44,6 +45,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => UserRole::Admin,
+            'phone' => null,
         ]);
     }
 

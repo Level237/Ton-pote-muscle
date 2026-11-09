@@ -20,6 +20,10 @@
 
             <p class="text-sm text-muted">{{ $member->email }}</p>
 
+            <x-admin.form.field name="phone" label="Numéro de téléphone">
+                <input id="phone" name="phone" type="tel" autocomplete="tel" value="{{ old('phone', $member->phone) }}" required class="{{ $inputClass }}">
+            </x-admin.form.field>
+
             <x-admin.form.radios name="gender" label="Sexe" :options="$genders" :selected="$member->gender" />
 
             <div class="grid grid-cols-2 gap-3">

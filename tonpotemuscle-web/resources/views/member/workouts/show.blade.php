@@ -56,6 +56,12 @@
 
         @if ($done)
             <p class="mt-6 text-sm text-muted">Séance faite.</p>
+            <a
+                href="{{ route('member.workouts.recap', $item) }}"
+                class="mt-4 flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-4 font-display text-sm font-bold uppercase tracking-wider text-bg transition-colors hover:bg-primary-hover"
+            >
+                Partager
+            </a>
         @else
             <form method="POST" action="{{ route('member.workouts.start', $item) }}" class="mt-6">
                 @csrf

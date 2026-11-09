@@ -39,7 +39,8 @@ class MemberController extends Controller
                     $query
                         ->where('name', 'like', '%'.$search.'%')
                         ->orWhere('username', 'like', '%'.$search.'%')
-                        ->orWhere('email', 'like', '%'.$search.'%');
+                        ->orWhere('email', 'like', '%'.$search.'%')
+                        ->orWhere('phone', 'like', '%'.$search.'%');
                 });
             })
             ->latest()

@@ -4,7 +4,7 @@ use App\Http\Controllers\Admin\BilanController as AdminBilanController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ExerciseController as AdminExerciseController;
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
-use App\Http\Controllers\Admin\PlaceholderController as AdminPlaceholderController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\ProgramController as AdminProgramController;
 use App\Http\Controllers\Admin\RankingController as AdminRankingController;
 use App\Http\Controllers\Admin\WorkoutController as AdminWorkoutController;
@@ -19,11 +19,16 @@ use App\Http\Controllers\Member\DashboardController;
 use App\Http\Controllers\Member\LiveWorkoutController;
 use App\Http\Controllers\Member\ProfileController as MemberProfileController;
 use App\Http\Controllers\Member\ProgramController as MemberProgramController;
+use App\Http\Controllers\Member\WorkoutRecapController;
 use App\Http\Controllers\ProgramController;
+use App\Http\Controllers\ShareController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', LandingController::class)->name('home');
 Route::get('programmes/{program}', ProgramController::class)->name('programs.show');
+Route::get('p/{token}', ShareController::class)
+    ->name('share.show')
+    ->where('token', '[0-9a-hjkmnp-tv-z]{26}');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('register', [RegisterMemberController::class, 'create'])->name('register');
@@ -42,6 +47,7 @@ Route::middleware(['auth', 'member'])->group(function (): void {
     Route::post('seances/{item}/demarrer', [LiveWorkoutController::class, 'start'])->name('member.workouts.start');
     Route::get('seances/{item}/live', [LiveWorkoutController::class, 'live'])->name('member.workouts.live');
     Route::post('seances/{item}/live', [LiveWorkoutController::class, 'complete'])->name('member.workouts.complete');
+    Route::get('seances/{item}/recap', WorkoutRecapController::class)->name('member.workouts.recap');
     Route::get('mes-programmes', [MemberProgramController::class, 'index'])->name('member.programs.index');
     Route::get('mes-programmes/{program}', [MemberProgramController::class, 'show'])->name('member.programs.show');
     Route::get('bilans', [MemberBilanController::class, 'index'])->name('member.bilans.index');
@@ -82,6 +88,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('classements/{program}', [AdminRankingController::class, 'show'])->name('rankings.show');
     Route::post('classements/{program}/publish', [AdminRankingController::class, 'publish'])->name('rankings.publish');
     Route::get('classements/{program}/export', [AdminRankingController::class, 'export'])->name('rankings.export');
-    Route::get('profil', AdminPlaceholderController::class)->name('profile');
+    Route::get('profil', [AdminProfileController::class, 'edit'])->name('profile');
+    Route::put('profil', [AdminProfileController::class, 'update'])->name('profile.update');
     Route::post('logout', LogoutAdminController::class)->name('logout');
 });

@@ -43,6 +43,9 @@
                         {{ '@'.$member->username }} ·
                     @endif
                     {{ $member->email }}
+                    @if ($member->phone)
+                        · {{ $member->phone }}
+                    @endif
                 </p>
             @endif
         </div>
@@ -109,6 +112,13 @@
                             class="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-4 font-display text-sm font-bold uppercase tracking-wider text-bg transition-colors hover:bg-primary-hover"
                         >
                             Débuter ma séance
+                        </a>
+                    @elseif (! $coach && $day['done'])
+                        <a
+                            href="{{ route('member.workouts.recap', $day['item']) }}"
+                            class="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-border px-4 text-sm font-medium text-text hover:border-primary hover:text-primary"
+                        >
+                            Partager
                         </a>
                     @endif
                 @else

@@ -73,7 +73,7 @@ class MemberLiveWorkoutTest extends TestCase
                 ],
             ])
             ->assertOk()
-            ->assertJsonPath('redirect', route('dashboard'));
+            ->assertJsonPath('redirect', route('member.workouts.recap', $item));
 
         $this->assertDatabaseHas('workout_logs', [
             'user_id' => $member->id,

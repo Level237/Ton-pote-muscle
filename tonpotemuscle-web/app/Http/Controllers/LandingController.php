@@ -15,6 +15,6 @@ class LandingController extends Controller
             return redirect()->route($user->isAdmin() ? 'admin.dashboard' : 'dashboard');
         }
 
-        return view('landing');
+        return view('auth.member.login');
     }
 }

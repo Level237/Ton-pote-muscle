@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasShareToken;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,9 +14,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'points',
     'live_count',
     'username',
+    'share_token',
 ])]
 class RankingSnapshotEntry extends Model
 {
+    use HasShareToken;
+
     /**
      * @return BelongsTo<RankingSnapshot, $this>
      */

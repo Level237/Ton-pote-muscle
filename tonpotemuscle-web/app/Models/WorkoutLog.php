@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasShareToken;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,9 +23,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'notes',
     'abandoned',
     'points_awarded',
+    'share_token',
 ])]
 class WorkoutLog extends Model
 {
+    use HasShareToken;
+
     /**
      * @return array<string, string>
      */
@@ -65,5 +69,19 @@ class WorkoutLog extends Model
     public function isCompleted(): bool
     {
         return $this->completed_at !== null && ! $this->abandoned;
+    }
+
+    public function durationMinutes(): int
+    {
+        if ($this->actual_duration_seconds) {
+            return max(1, (int) round($this->actual_duration_seconds / 60));
+        }
+
+        return $this->workout?->durationMinutes() ?? 0;
+    }
+
+    public function modeLabel(): string
+    {
+        return $this->mode === 'live' ? 'Live' : 'Déclarée';
     }
 }

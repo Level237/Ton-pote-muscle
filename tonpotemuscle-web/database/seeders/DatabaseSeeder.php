@@ -14,11 +14,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::query()->firstOrCreate(
-            ['email' => 'admin@tonpotemuscle.test'],
+            ['email' => 'arthur@tonpotemuscle.com'],
             [
                 'name' => 'Admin',
                 'username' => 'admin',
-                'password' => 'password',
+                'password' => 'arthurtonpotemuscle123',
                 'role' => UserRole::Admin,
             ],
         );

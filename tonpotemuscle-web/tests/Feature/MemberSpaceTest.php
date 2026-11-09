@@ -69,6 +69,7 @@ class MemberSpaceTest extends TestCase
             'name' => 'Paul Martin',
             'username' => 'paul',
             'email' => 'paul@example.com',
+            'phone' => '0612345678',
             'password' => 'password',
             'password_confirmation' => 'password',
         ])->assertRedirect(route('member.bilans.show', $bilan));
@@ -209,6 +210,7 @@ class MemberSpaceTest extends TestCase
             ->put(route('member.profile.update'), [
                 'name' => 'Marie Martin',
                 'username' => 'marie-m',
+                'phone' => '07 11 22 33 44',
                 'gender' => 'feminin',
                 'height_cm' => 168,
                 'weight_kg' => 62.4,
@@ -223,6 +225,7 @@ class MemberSpaceTest extends TestCase
 
         $this->assertSame('Marie Martin', $member->name);
         $this->assertSame('marie-m', $member->username);
+        $this->assertSame('0711223344', $member->phone);
         $this->assertSame('feminin', $member->gender);
         $this->assertSame(168, $member->height_cm);
         $this->assertSame(['health', 'energy'], $member->motivations);

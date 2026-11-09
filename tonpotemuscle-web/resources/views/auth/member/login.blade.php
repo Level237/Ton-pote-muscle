@@ -1,4 +1,8 @@
-<x-layouts.guest title="Connexion" heading="Connexion">
+<x-layouts.guest
+    title="Ton Pote Musclé"
+    description="Ton corps, ton rythme. Séances live et programmes avec ton coach, sur Ton Pote Musclé."
+    heading="Connexion"
+>
     <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf
 

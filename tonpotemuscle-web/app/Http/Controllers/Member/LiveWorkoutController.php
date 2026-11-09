@@ -7,6 +7,7 @@ use App\Http\Requests\Member\CompleteLiveWorkoutRequest;
 use App\Models\MemberPlanItem;
 use App\Models\ProgramEnrollment;
 use App\Models\WorkoutLog;
+use App\Support\ShareToken;
 use App\Support\WorkoutPoints;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -38,9 +39,7 @@ class LiveWorkoutController extends Controller
         $log = $this->logFor($request, $item);
 
         if ($log?->isCompleted()) {
-            return redirect()
-                ->route('dashboard')
-                ->with('status', 'Cette séance est déjà faite.');
+            return redirect()->route('member.workouts.recap', $item);
         }
 
         $enrollmentId = null;
@@ -82,9 +81,7 @@ class LiveWorkoutController extends Controller
         $log = $this->logFor($request, $item);
 
         if ($log?->isCompleted()) {
-            return redirect()
-                ->route('dashboard')
-                ->with('status', 'Cette séance est déjà faite.');
+            return redirect()->route('member.workouts.recap', $item);
         }
 
         if ($log === null || $log->abandoned) {
@@ -104,7 +101,7 @@ class LiveWorkoutController extends Controller
         $log = $this->logFor($request, $item);
 
         if ($log === null || $log->isCompleted()) {
-            return response()->json(['redirect' => route('dashboard')]);
+            return response()->json(['redirect' => route('member.workouts.recap', $item)]);
         }
 
         $payload = $request->validated();
@@ -139,11 +136,12 @@ class LiveWorkoutController extends Controller
                 'abandoned' => false,
                 'actual_duration_seconds' => $payload['actual_duration_seconds'] ?? null,
                 'points_awarded' => WorkoutPoints::live($item->planned_on, $skipped),
+                'share_token' => $log->share_token ?? ShareToken::unique(),
             ]);
         });
 
         return response()->json([
-            'redirect' => route('dashboard'),
+            'redirect' => route('member.workouts.recap', $item),
         ]);
     }
 

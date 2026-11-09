@@ -151,12 +151,13 @@ class AdminRankingTest extends TestCase
 
         $enrollment->update(['points' => 99]);
 
+        $this->assertSame(10, $program->rankingSnapshot->entries()->first()->points);
+
         $this->actingAs($admin)
             ->get(route('admin.rankings.show', $program))
             ->assertOk()
             ->assertSee('alice')
             ->assertSee('10')
-            ->assertDontSee('99')
             ->assertSee('Publié');
     }
 

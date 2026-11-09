@@ -1,5 +1,6 @@
 @props([
-    'title' => null,
+    'title' => 'Ton Pote Musclé',
+    'description' => 'Ton corps, ton rythme. Séances live et programmes avec ton coach, sur Ton Pote Musclé.',
     'heading' => null,
     'subtitle' => null,
 ])
@@ -10,7 +11,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>{{ $title ?? config('app.name', 'Ton Pote Musclé') }}</title>
+        <x-seo :title="$title" :description="$description" />
         <x-font-awesome />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
