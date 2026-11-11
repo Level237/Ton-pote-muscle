@@ -2,28 +2,38 @@
     'log',
 ])
 
-<article class="relative overflow-hidden rounded-[24px] border border-border bg-surface px-6 py-8">
-    <span class="absolute inset-y-0 left-0 w-1.5 bg-primary" aria-hidden="true"></span>
-    <img src="{{ asset('assets/img/logo.webp') }}" alt="" class="h-7 w-auto">
-    <p class="mt-8 text-[11px] font-bold uppercase tracking-[0.22em] text-primary">Séance faite</p>
-    <h2 class="mt-2 font-display text-4xl font-bold uppercase leading-none tracking-wide text-text">
-        {{ $log->workout?->title ?? 'Séance' }}
-    </h2>
-    @if ($log->member?->username)
-        <p class="mt-3 text-sm text-muted">{{ '@'.$log->member->username }}</p>
-    @endif
-    <dl class="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-text">
-        <div>
-            <dt class="sr-only">Durée</dt>
-            <dd class="tabular-nums">{{ $log->durationMinutes() }} min</dd>
+<article class="overflow-hidden rounded-2xl border border-border bg-surface">
+    <div class="flex items-stretch">
+        <x-cover
+            :src="$log->workout?->thumbnailUrl()"
+            icon="fa-solid fa-stopwatch"
+            size="ticket"
+        />
+        <div class="flex min-w-0 flex-1 flex-col justify-center gap-1 px-3.5 py-3">
+            <div class="flex items-center justify-between gap-2">
+                <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Séance faite</p>
+                <img src="{{ asset('assets/img/logo.webp') }}" alt="" class="h-4 w-auto opacity-80">
+            </div>
+            <h2 class="font-display text-xl font-bold uppercase leading-tight tracking-wide text-text sm:text-2xl">
+                {{ $log->workout?->title ?? 'Séance' }}
+            </h2>
+            @if ($log->member?->username)
+                <p class="text-xs text-muted">{{ '@'.$log->member->username }}</p>
+            @endif
         </div>
-        <div>
-            <dt class="sr-only">Mode</dt>
-            <dd>{{ $log->modeLabel() }}</dd>
+    </div>
+    <dl class="grid grid-cols-3 border-t border-border">
+        <div class="px-3 py-2.5 text-center">
+            <dt class="text-[10px] font-medium uppercase tracking-wider text-muted">Durée</dt>
+            <dd class="mt-0.5 text-sm font-semibold tabular-nums text-text">{{ $log->durationMinutes() }} min</dd>
         </div>
-        <div>
-            <dt class="sr-only">Points</dt>
-            <dd class="tabular-nums text-primary">+{{ $log->points_awarded }} pts</dd>
+        <div class="border-x border-border px-3 py-2.5 text-center">
+            <dt class="text-[10px] font-medium uppercase tracking-wider text-muted">Mode</dt>
+            <dd class="mt-0.5 text-sm font-semibold text-text">{{ $log->modeLabel() }}</dd>
+        </div>
+        <div class="px-3 py-2.5 text-center">
+            <dt class="text-[10px] font-medium uppercase tracking-wider text-muted">Points</dt>
+            <dd class="mt-0.5 text-sm font-semibold tabular-nums text-primary">+{{ $log->points_awarded }} pts</dd>
         </div>
     </dl>
 </article>

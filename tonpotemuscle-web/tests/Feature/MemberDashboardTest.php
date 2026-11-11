@@ -26,6 +26,8 @@ class MemberDashboardTest extends TestCase
             ->assertSee('Profil')
             ->assertSee('Semaine')
             ->assertSee('Progrès')
+            ->assertSee('Pesée de la semaine')
+            ->assertSee('Enregistrer')
             ->assertSee('Ton coach ne t’a pas encore donné de séance')
             ->assertDontSee('Donner')
             ->assertDontSee('← Inscrits');

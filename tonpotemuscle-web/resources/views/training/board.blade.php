@@ -68,6 +68,8 @@
     @if ($view === 'accueil')
         <p class="text-sm text-muted">Cette semaine · {{ $weekDone }} séance{{ $weekDone > 1 ? 's' : '' }} sur {{ $weekWorkouts }}</p>
 
+        @include('training._weight-card')
+
         <div class="grid grid-cols-7 gap-1">
             @foreach ($days as $day)
                 <button
@@ -105,6 +107,7 @@
                     @elseif ($day['status'] === 'missed')
                         <p class="mb-3 text-[11px] font-bold uppercase tracking-wider text-danger">Manquée</p>
                     @endif
+                    @include('training._session-feedback', ['log' => $day['log']])
                     @include('training._workout-detail', ['item' => $day['item']])
                     @if (! $coach && $day['is_today'] && ! $day['done'])
                         <a
@@ -180,6 +183,10 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider text-primary">À faire</span>
                             @elseif ($day['status'] === 'done')
                                 <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Faite</span>
+                                @include('training._session-feedback', [
+                                    'log' => $day['log'],
+                                    'class' => 'text-[10px] font-bold uppercase tracking-wider text-text',
+                                ])
                             @endif
                         </div>
                     </div>

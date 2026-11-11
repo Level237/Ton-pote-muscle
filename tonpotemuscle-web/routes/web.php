@@ -19,6 +19,7 @@ use App\Http\Controllers\Member\DashboardController;
 use App\Http\Controllers\Member\LiveWorkoutController;
 use App\Http\Controllers\Member\ProfileController as MemberProfileController;
 use App\Http\Controllers\Member\ProgramController as MemberProgramController;
+use App\Http\Controllers\Member\WeightLogController;
 use App\Http\Controllers\Member\WorkoutRecapController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ShareController;
@@ -47,7 +48,9 @@ Route::middleware(['auth', 'member'])->group(function (): void {
     Route::post('seances/{item}/demarrer', [LiveWorkoutController::class, 'start'])->name('member.workouts.start');
     Route::get('seances/{item}/live', [LiveWorkoutController::class, 'live'])->name('member.workouts.live');
     Route::post('seances/{item}/live', [LiveWorkoutController::class, 'complete'])->name('member.workouts.complete');
-    Route::get('seances/{item}/recap', WorkoutRecapController::class)->name('member.workouts.recap');
+    Route::get('seances/{item}/recap', [WorkoutRecapController::class, 'show'])->name('member.workouts.recap');
+    Route::post('seances/{item}/recap', [WorkoutRecapController::class, 'store'])->name('member.workouts.feedback');
+    Route::post('pesee', [WeightLogController::class, 'store'])->name('member.weight.store');
     Route::get('mes-programmes', [MemberProgramController::class, 'index'])->name('member.programs.index');
     Route::get('mes-programmes/{program}', [MemberProgramController::class, 'show'])->name('member.programs.show');
     Route::get('bilans', [MemberBilanController::class, 'index'])->name('member.bilans.index');

@@ -8,7 +8,9 @@ use App\Models\MemberPlanItem;
 use App\Models\Program;
 use App\Models\User;
 use App\Models\Workout;
+use App\Models\WorkoutLog;
 use App\Support\MemberPlanAssigner;
+use App\Support\WorkoutFeedback;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -164,7 +166,42 @@ class AdminMemberTest extends TestCase
             ->assertSee('← Inscrits')
             ->assertSee('Accueil')
             ->assertSee('Semaine')
-            ->assertSee('Progrès');
+            ->assertSee('Progrès')
+            ->assertSee('Pesée de la semaine')
+            ->assertDontSee('Enregistrer');
+    }
+
+    public function test_admin_sees_workout_feedback_on_member_detail(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create(['name' => 'Marie Dupont']);
+        $workout = Workout::factory()->create(['title' => 'HIIT test']);
+        $assignment = app(MemberPlanAssigner::class)->assignWorkout($member, $admin, $workout, [now()->toDateString()]);
+        $item = $assignment->items()->first();
+
+        WorkoutLog::query()->create([
+            'user_id' => $member->id,
+            'workout_id' => $item->workout_id,
+            'mode' => 'live',
+            'performed_on' => $item->planned_on->toDateString(),
+            'started_at' => now()->subMinutes(20),
+            'completed_at' => now(),
+            'abandoned' => false,
+            'points_awarded' => 12,
+            'difficulty_feedback' => WorkoutFeedback::Hard,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.enrollments.show', $member))
+            ->assertOk()
+            ->assertSee('HIIT test')
+            ->assertSee('Ressenti')
+            ->assertSee('Difficile');
+
+        $this->actingAs($admin)
+            ->get(route('admin.enrollments.show', ['user' => $member, 'vue' => 'semaine']))
+            ->assertOk()
+            ->assertSee('Difficile');
     }
 
     public function test_admin_can_view_member_week_and_progress(): void
