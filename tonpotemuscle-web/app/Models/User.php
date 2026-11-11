@@ -97,6 +97,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<WeightLog, $this>
+     */
+    public function weightLogs(): HasMany
+    {
+        return $this->hasMany(WeightLog::class)->orderByDesc('week_start');
+    }
+
+    /**
      * @param  Builder<User>  $query
      * @return Builder<User>
      */

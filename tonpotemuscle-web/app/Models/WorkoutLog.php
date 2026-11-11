@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasShareToken;
+use App\Support\WorkoutFeedback;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,7 +40,13 @@ class WorkoutLog extends Model
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
             'abandoned' => 'boolean',
+            'difficulty_feedback' => 'integer',
         ];
+    }
+
+    public function feedbackLabel(): ?string
+    {
+        return WorkoutFeedback::LABELS[$this->difficulty_feedback] ?? null;
     }
 
     /**

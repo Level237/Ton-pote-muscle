@@ -6,6 +6,7 @@ use App\Models\MemberPlanItem;
 use App\Models\ProgramEnrollment;
 use App\Models\ProgramWorkout;
 use App\Models\User;
+use App\Models\WeightLog;
 use App\Models\WorkoutLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -23,6 +24,7 @@ final class MemberTraining
      *     weekday_short: string,
      *     letter: string,
      *     item: MemberPlanItem|null,
+     *     log: WorkoutLog|null,
      *     done: bool,
      *     status: string,
      *     is_today: bool
@@ -31,11 +33,9 @@ final class MemberTraining
     public static function days(Carbon $monday, Collection $items, Collection $logs): Collection
     {
         $byDate = $items->keyBy(fn (MemberPlanItem $item) => $item->planned_on->toDateString());
-        $doneKeys = $logs
+        $logsByKey = $logs
             ->filter(fn (WorkoutLog $log) => $log->isCompleted())
-            ->mapWithKeys(fn (WorkoutLog $log) => [
-                $log->workout_id.'|'.$log->performed_on->toDateString() => true,
-            ]);
+            ->keyBy(fn (WorkoutLog $log) => $log->workout_id.'|'.$log->performed_on->toDateString());
 
         $days = collect();
 
@@ -43,9 +43,9 @@ final class MemberTraining
             $date = $monday->copy()->addDays($offset)->startOfDay();
             $key = $date->toDateString();
             $item = $byDate->get($key);
-            $done = $item?->workout_id
-                ? $doneKeys->has($item->workout_id.'|'.$key)
-                : false;
+            $log = $item?->workout_id
+                ? $logsByKey->get($item->workout_id.'|'.$key)
+                : null;
 
             $days->push([
                 'date' => $date,
@@ -54,8 +54,9 @@ final class MemberTraining
                 'weekday_short' => mb_strtoupper(mb_substr(ProgramWorkout::WEEKDAYS[$date->dayOfWeekIso] ?? '', 0, 3)),
                 'letter' => mb_strtoupper(mb_substr(ProgramWorkout::WEEKDAYS[$date->dayOfWeekIso] ?? '', 0, 1)),
                 'item' => $item,
-                'done' => $done,
-                'status' => self::status($item, $done, $date),
+                'log' => $log,
+                'done' => $log !== null,
+                'status' => self::status($item, $log !== null, $date),
                 'is_today' => $date->isToday(),
             ]);
         }
@@ -162,7 +163,9 @@ final class MemberTraining
      *     weekDone: int,
      *     catchUp: Collection<int, MemberPlanItem>,
      *     progress: array{count: int, previous: int, bars: list<array{label: string, count: int, current: bool}>},
-     *     enrollments: Collection<int, ProgramEnrollment>
+     *     enrollments: Collection<int, ProgramEnrollment>,
+     *     weightLogs: Collection<int, WeightLog>,
+     *     weekWeight: WeightLog|null
      * }
      */
     public static function board(User $member, Request $request): array
@@ -196,6 +199,16 @@ final class MemberTraining
         $days = self::days($monday, $items, $logs);
         $weekWorkouts = $days->filter(fn (array $day) => $day['status'] !== 'rest');
 
+        $weightLogs = WeightLog::query()
+            ->where('user_id', $member->id)
+            ->orderByDesc('week_start')
+            ->limit(8)
+            ->get();
+        $weekStart = MemberWeight::weekStart()->toDateString();
+        $weekWeight = $weightLogs->first(
+            fn (WeightLog $log) => $log->week_start->toDateString() === $weekStart,
+        );
+
         $catchUp = $items
             ->filter(function (MemberPlanItem $item) use ($logs): bool {
                 if ($item->isRest() || $item->planned_on->gte(now()->startOfDay())) {
@@ -224,6 +237,8 @@ final class MemberTraining
                 ->with('program')
                 ->latest('enrolled_at')
                 ->get(),
+            'weightLogs' => $weightLogs,
+            'weekWeight' => $weekWeight,
         ];
     }
 }

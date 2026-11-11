@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Member;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Member\UpdateProfileRequest;
 use App\Support\MemberProfile;
+use App\Support\MemberWeight;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -25,7 +26,16 @@ class ProfileController extends Controller
 
     public function update(UpdateProfileRequest $request): RedirectResponse
     {
-        $request->user()->update($request->profileAttributes());
+        $member = $request->user();
+        $previous = $member->weight_kg;
+        $attributes = $request->profileAttributes();
+
+        $member->update($attributes);
+
+        $weight = $attributes['weight_kg'];
+        if ($weight !== null && round((float) $weight, 1) !== round((float) $previous, 1)) {
+            MemberWeight::record($member, $weight);
+        }
 
         return redirect()
             ->route('member.profile.edit')
