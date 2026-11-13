@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Enums\EnrollmentStatus;
 use App\Enums\ProgramStatus;
+use App\Models\Exercise;
+use App\Models\MemberAssignment;
 use App\Models\MemberPlanItem;
 use App\Models\Program;
 use App\Models\User;
@@ -168,6 +170,8 @@ class AdminMemberTest extends TestCase
             ->assertSee('Semaine')
             ->assertSee('Progrès')
             ->assertSee('Pesée de la semaine')
+            ->assertSee('Matériel')
+            ->assertSee('Non renseigné')
             ->assertDontSee('Enregistrer');
     }
 
@@ -294,6 +298,62 @@ class AdminMemberTest extends TestCase
         $this->assertTrue(MemberPlanItem::query()->where('user_id', $member->id)->count() >= 2);
     }
 
+    public function test_admin_can_prescribe_week_loads_once_for_repeated_exercises(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create();
+        $exercise = Exercise::factory()->create([
+            'title' => 'Rowing haltères',
+            'equipments' => ['dumbbells'],
+        ]);
+        $mondayWorkout = Workout::factory()->create(['title' => 'Dos']);
+        $mondayRow = $mondayWorkout->items()->create([
+            'exercise_id' => $exercise->id,
+            'position' => 1,
+            'sets' => 3,
+            'reps' => 10,
+            'rest_seconds' => 60,
+        ]);
+        $thursdayWorkout = Workout::factory()->create(['title' => 'Full body']);
+        $thursdayRow = $thursdayWorkout->items()->create([
+            'exercise_id' => $exercise->id,
+            'position' => 1,
+            'sets' => 3,
+            'reps' => 12,
+            'rest_seconds' => 45,
+        ]);
+        $program = Program::factory()->create([
+            'title' => 'Force maison',
+            'status' => ProgramStatus::Open,
+        ]);
+        $program->schedule()->create(['day_number' => 1, 'workout_id' => $mondayWorkout->id]);
+        $program->schedule()->create(['day_number' => 2, 'workout_id' => null]);
+        $program->schedule()->create(['day_number' => 4, 'workout_id' => $thursdayWorkout->id]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.enrollments.give.store', $member), [
+                'mode' => 'program',
+                'program_id' => $program->id,
+                'program_week' => 1,
+                'target_week' => 'next',
+                'week_loads' => [$exercise->id => 12],
+            ])
+            ->assertRedirect(route('admin.enrollments.show', $member));
+
+        $nextMonday = now()->startOfWeek(Carbon::MONDAY)->addWeek();
+        $mondayItem = MemberPlanItem::query()
+            ->where('user_id', $member->id)
+            ->whereDate('planned_on', $nextMonday->toDateString())
+            ->first();
+        $thursdayItem = MemberPlanItem::query()
+            ->where('user_id', $member->id)
+            ->whereDate('planned_on', $nextMonday->copy()->addDays(3)->toDateString())
+            ->first();
+
+        $this->assertSame(12.0, $mondayItem?->loadKg($mondayRow));
+        $this->assertSame(12.0, $thursdayItem?->loadKg($thursdayRow));
+    }
+
     public function test_admin_can_view_give_workout_calendar(): void
     {
         $admin = User::factory()->admin()->create();
@@ -341,5 +401,171 @@ class AdminMemberTest extends TestCase
             ->assertRedirect(route('admin.enrollments.give', $member));
 
         $this->assertDatabaseMissing('member_plan_items', ['id' => $item->id]);
+    }
+
+    public function test_admin_can_cancel_a_given_workout(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create();
+        $workout = Workout::factory()->create(['title' => 'Full body']);
+        $assignment = app(MemberPlanAssigner::class)->assignWorkout(
+            $member,
+            $admin,
+            $workout,
+            ['2026-11-10', '2026-11-12'],
+        );
+
+        $this->actingAs($admin)
+            ->get(route('admin.enrollments.give', $member))
+            ->assertOk()
+            ->assertSee('Full body')
+            ->assertSee('Annuler le don');
+
+        $this->actingAs($admin)
+            ->delete(route('admin.enrollments.assignments.destroy', [$member, $assignment]))
+            ->assertRedirect(route('admin.enrollments.give', $member));
+
+        $this->assertDatabaseMissing('member_assignments', ['id' => $assignment->id]);
+        $this->assertSame(0, MemberPlanItem::query()->where('user_id', $member->id)->count());
+    }
+
+    public function test_admin_can_cancel_a_given_program_week(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create();
+        $workout = Workout::factory()->create(['title' => 'Full body']);
+        $program = Program::factory()->create([
+            'title' => 'Force maison',
+            'status' => ProgramStatus::Open,
+        ]);
+        $program->schedule()->create(['day_number' => 1, 'workout_id' => $workout->id]);
+        $program->schedule()->create(['day_number' => 2, 'workout_id' => null]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.enrollments.give.store', $member), [
+                'mode' => 'program',
+                'program_id' => $program->id,
+                'program_week' => 1,
+                'target_week' => 'next',
+            ])
+            ->assertRedirect(route('admin.enrollments.show', $member));
+
+        $assignment = MemberAssignment::query()
+            ->where('user_id', $member->id)
+            ->where('type', 'program_week')
+            ->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('admin.enrollments.give', $member))
+            ->assertOk()
+            ->assertSee('Annuler la semaine')
+            ->assertSee('Force maison');
+
+        $this->actingAs($admin)
+            ->delete(route('admin.enrollments.assignments.destroy', [$member, $assignment]))
+            ->assertRedirect(route('admin.enrollments.give', $member));
+
+        $this->assertDatabaseMissing('member_assignments', ['id' => $assignment->id]);
+        $this->assertSame(0, MemberPlanItem::query()->where('user_id', $member->id)->count());
+    }
+
+    public function test_admin_cannot_cancel_another_members_assignment(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create();
+        $other = User::factory()->member()->create();
+        $workout = Workout::factory()->create();
+        $assignment = app(MemberPlanAssigner::class)->assignWorkout($member, $admin, $workout, ['2026-11-10']);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.enrollments.assignments.destroy', [$other, $assignment]))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('member_assignments', ['id' => $assignment->id]);
+    }
+
+    public function test_admin_can_prescribe_loads_when_member_has_equipment(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create([
+            'trains_with_equipment' => true,
+            'equipment_notes' => 'Haltères 10 et 20 kg',
+        ]);
+        $exercise = Exercise::factory()->create([
+            'title' => 'Rowing haltères',
+            'equipments' => ['dumbbells'],
+        ]);
+        $workout = Workout::factory()->create(['title' => 'Dos haltères']);
+        $row = $workout->items()->create([
+            'exercise_id' => $exercise->id,
+            'position' => 1,
+            'sets' => 3,
+            'reps' => 10,
+            'rest_seconds' => 60,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.enrollments.give', $member))
+            ->assertOk()
+            ->assertSee('Charges (kg)');
+
+        $this->actingAs($admin)
+            ->post(route('admin.enrollments.give.store', $member), [
+                'mode' => 'workout',
+                'workout_id' => $workout->id,
+                'planned_on' => now()->toDateString(),
+                'loads' => [$row->id => 12],
+            ])
+            ->assertRedirect(route('admin.enrollments.give', $member));
+
+        $item = MemberPlanItem::query()->where('user_id', $member->id)->first();
+        $this->assertSame(12.0, $item->loadKg($row));
+
+        $this->actingAs($admin)
+            ->get(route('admin.enrollments.show', $member))
+            ->assertOk()
+            ->assertSee('Matériel')
+            ->assertSee('Oui')
+            ->assertSee('Haltères 10 et 20 kg')
+            ->assertSee('12 kg');
+
+        $this->actingAs($member)
+            ->get(route('member.workouts.show', $item))
+            ->assertOk()
+            ->assertSee('Rowing haltères')
+            ->assertSee('12 kg');
+    }
+
+    public function test_admin_can_prescribe_loads_when_member_declined_equipment(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create(['name' => 'Marie Dupont', 'trains_with_equipment' => false]);
+        $exercise = Exercise::factory()->create(['equipments' => ['dumbbells']]);
+        $workout = Workout::factory()->create();
+        $row = $workout->items()->create([
+            'exercise_id' => $exercise->id,
+            'position' => 1,
+            'sets' => 3,
+            'reps' => 8,
+            'rest_seconds' => 45,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.enrollments.give', $member))
+            ->assertOk()
+            ->assertSee('Charges (kg)')
+            ->assertSee('a indiqué sans matériel');
+
+        $this->actingAs($admin)
+            ->post(route('admin.enrollments.give.store', $member), [
+                'mode' => 'workout',
+                'workout_id' => $workout->id,
+                'planned_on' => now()->toDateString(),
+                'loads' => [$row->id => 20],
+            ])
+            ->assertRedirect(route('admin.enrollments.give', $member));
+
+        $item = MemberPlanItem::query()->where('user_id', $member->id)->first();
+        $this->assertSame(20.0, $item->loadKg($row));
     }
 }

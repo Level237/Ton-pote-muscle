@@ -17,8 +17,9 @@ final class MemberPlanAssigner
 {
     /**
      * @param  list<Carbon|string>  $dates
+     * @param  array<string, float|int|string>  $loads
      */
-    public function assignWorkout(User $member, User $admin, Workout $workout, array $dates): MemberAssignment
+    public function assignWorkout(User $member, User $admin, Workout $workout, array $dates, array $loads = []): MemberAssignment
     {
         $days = collect($dates)
             ->map(fn ($date) => Carbon::parse($date)->startOfDay())
@@ -32,7 +33,7 @@ final class MemberPlanAssigner
             ]);
         }
 
-        return DB::transaction(function () use ($member, $admin, $workout, $days) {
+        return DB::transaction(function () use ($member, $admin, $workout, $days, $loads) {
             $assignment = MemberAssignment::query()->create([
                 'user_id' => $member->id,
                 'assigned_by' => $admin->id,
@@ -43,13 +44,16 @@ final class MemberPlanAssigner
             ]);
 
             foreach ($days as $on) {
-                $this->replaceItem($member, $assignment, $on, 'workout', $workout->id);
+                $this->replaceItem($member, $assignment, $on, 'workout', $workout->id, $loads);
             }
 
             return $assignment;
         });
     }
 
+    /**
+     * @param  array<string, float|int|string>  $exerciseLoads
+     */
     public function assignProgramWeek(
         User $member,
         User $admin,
@@ -57,8 +61,9 @@ final class MemberPlanAssigner
         int $week,
         Carbon $monday,
         Carbon $from,
+        array $exerciseLoads = [],
     ): MemberAssignment {
-        return DB::transaction(function () use ($member, $admin, $program, $week, $monday, $from) {
+        return DB::transaction(function () use ($member, $admin, $program, $week, $monday, $from, $exerciseLoads) {
             $enrollment = ProgramEnrollment::query()->firstOrCreate(
                 [
                     'user_id' => $member->id,
@@ -104,11 +109,25 @@ final class MemberPlanAssigner
                 'ends_on' => (end($dates) ?: $monday)->toDateString(),
             ]);
 
+            $workoutIds = $days->pluck('workout_id')->filter()->unique()->values();
+            $workouts = $workoutIds->isEmpty()
+                ? collect()
+                : Workout::query()
+                    ->with('items.exercise')
+                    ->whereIn('id', $workoutIds->all())
+                    ->get()
+                    ->keyBy('id');
+
             foreach ($days as $day) {
                 $date = $monday->copy()->addDays($day['offset']);
                 if ($date->lt($from->copy()->startOfDay())) {
                     continue;
                 }
+
+                $workout = $day['workout_id'] ? $workouts->get($day['workout_id']) : null;
+                $loads = $workout
+                    ? MemberEquipment::loadsForWorkout($workout, $exerciseLoads)
+                    : [];
 
                 $this->replaceItem(
                     $member,
@@ -116,6 +135,7 @@ final class MemberPlanAssigner
                     $date,
                     $day['is_rest'] ? 'rest' : 'workout',
                     $day['is_rest'] ? null : $day['workout_id'],
+                    $loads,
                 );
             }
 
@@ -123,12 +143,16 @@ final class MemberPlanAssigner
         });
     }
 
+    /**
+     * @param  array<string, float|int|string>  $loads
+     */
     private function replaceItem(
         User $member,
         MemberAssignment $assignment,
         Carbon $on,
         string $kind,
         ?string $workoutId,
+        array $loads = [],
     ): void {
         MemberPlanItem::query()
             ->where('user_id', $member->id)
@@ -141,6 +165,7 @@ final class MemberPlanAssigner
             'planned_on' => $on->toDateString(),
             'kind' => $kind,
             'workout_id' => $workoutId,
+            'loads' => $kind === 'workout' && $loads !== [] ? $loads : null,
         ]);
     }
 }

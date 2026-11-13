@@ -38,7 +38,7 @@
                     @endif
                     <div class="min-w-0 flex-1">
                         <p class="text-base font-medium text-text">{{ $row->exercise?->title }}</p>
-                        <p class="mt-0.5 text-sm text-muted">{{ $row->workLabel() }} · repos {{ $row->restLabel() }}</p>
+                        <p class="mt-0.5 text-sm text-muted">{{ $item->loadLabel($row) }} · repos {{ $row->restLabel() }}</p>
                         @if ($row->exercise?->demoUrl() && ! $row->exercise?->gifUrl())
                             <a
                                 href="{{ $row->exercise->demoUrl() }}"

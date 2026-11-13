@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Member\StoreBilanAnswersRequest;
 use App\Models\Bilan;
 use App\Models\BilanSubmission;
+use App\Support\MemberEquipment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -69,6 +70,8 @@ class BilanController extends Controller
                     'value' => (string) ($answers[$question->id] ?? ''),
                 ]);
             }
+
+            MemberEquipment::syncFromBilan($request->user(), $bilan, $answers);
         });
 
         return redirect()

@@ -69,6 +69,7 @@
         <p class="text-sm text-muted">Cette semaine · {{ $weekDone }} séance{{ $weekDone > 1 ? 's' : '' }} sur {{ $weekWorkouts }}</p>
 
         @include('training._weight-card')
+        @include('training._equipment-card')
 
         <div class="grid grid-cols-7 gap-1">
             @foreach ($days as $day)
@@ -198,7 +199,7 @@
                         @if ($day['item']->workout?->items)
                             <ul class="mt-1 space-y-0.5 text-sm text-muted">
                                 @foreach ($day['item']->workout->items as $row)
-                                    <li>{{ $row->exercise?->title }}</li>
+                                    <li>{{ $row->exercise?->title }}@if ($day['item']->loadKg($row)) · {{ \App\Support\MemberEquipment::formatLoad($day['item']->loadKg($row)) }}@endif</li>
                                 @endforeach
                             </ul>
                         @endif

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\MemberEquipment;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,19 +34,21 @@ class WorkoutExercise extends Model
         return $this->belongsTo(Exercise::class);
     }
 
-    public function workLabel(): string
+    public function workLabel(float|int|string|null $loadKg = null): string
     {
         $sets = max(1, (int) $this->sets);
 
         if (filled($this->reps)) {
-            return $sets.' × '.$this->reps;
+            $base = $sets.' × '.$this->reps;
+        } elseif (filled($this->duration_seconds)) {
+            $base = $sets.' × '.$this->duration_seconds.' s';
+        } else {
+            $base = $sets.' série'.($sets > 1 ? 's' : '');
         }
 
-        if (filled($this->duration_seconds)) {
-            return $sets.' × '.$this->duration_seconds.' s';
-        }
+        $load = MemberEquipment::formatLoad($loadKg);
 
-        return $sets.' série'.($sets > 1 ? 's' : '');
+        return $load ? $base.' · '.$load : $base;
     }
 
     public function restLabel(): string

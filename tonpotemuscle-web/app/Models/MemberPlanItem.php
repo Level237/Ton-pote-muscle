@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\MemberEquipment;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,7 @@ use Illuminate\Support\Str;
     'planned_on',
     'kind',
     'workout_id',
+    'loads',
 ])]
 class MemberPlanItem extends Model
 {
@@ -36,6 +38,7 @@ class MemberPlanItem extends Model
     {
         return [
             'planned_on' => 'date',
+            'loads' => 'array',
         ];
     }
 
@@ -75,5 +78,26 @@ class MemberPlanItem extends Model
         }
 
         return $this->workout?->title ?? 'Séance';
+    }
+
+    public function loadKg(WorkoutExercise $row): ?float
+    {
+        $value = ($this->loads ?? [])[(string) $row->id] ?? ($this->loads ?? [])[$row->id] ?? null;
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return (float) $value;
+    }
+
+    public function loadLabel(WorkoutExercise $row): string
+    {
+        return $row->workLabel($this->loadKg($row));
+    }
+
+    public function loadDisplay(WorkoutExercise $row): ?string
+    {
+        return MemberEquipment::formatLoad($this->loadKg($row));
     }
 }

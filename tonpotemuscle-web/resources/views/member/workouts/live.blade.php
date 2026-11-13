@@ -14,6 +14,7 @@
             'duration_seconds' => $row->duration_seconds,
             'rest_seconds' => max(0, (int) $row->rest_seconds),
             'work_label' => $row->workLabel(),
+            'load_label' => $item->loadDisplay($row),
         ])->values()->all(),
     ];
 @endphp
@@ -58,6 +59,7 @@
             <div data-live="panel" class="flex flex-col items-center text-center lg:col-span-12">
                 <p data-live="phase" class="text-xs font-bold uppercase tracking-wider text-primary"></p>
                 <h1 data-live="title" class="mt-2 text-2xl font-bold text-text sm:text-3xl"></h1>
+                <p data-live="load" class="mt-2 hidden font-display text-4xl font-bold tabular-nums text-primary"></p>
                 <p data-live="meta" class="mt-1 text-sm text-muted"></p>
                 <a
                     data-live="demo"

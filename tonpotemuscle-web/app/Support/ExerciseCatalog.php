@@ -27,6 +27,13 @@ final class ExerciseCatalog
         'bench' => 'Banc',
     ];
 
+    /** @var array<string, string> */
+    public const LOADABLE = [
+        'dumbbells' => 'Haltères',
+        'barbell' => 'Barre',
+        'kettlebell' => 'Kettlebell',
+    ];
+
     /**
      * @param  list<string>|null  $keys
      * @param  array<string, string>  $catalog

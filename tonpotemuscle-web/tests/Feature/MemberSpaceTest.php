@@ -8,6 +8,7 @@ use App\Models\Bilan;
 use App\Models\Program;
 use App\Models\ProgramEnrollment;
 use App\Models\User;
+use App\Support\MemberEquipment;
 use App\Support\MemberProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -97,6 +98,40 @@ class MemberSpaceTest extends TestCase
         $this->actingAs($member)
             ->get(route('dashboard'))
             ->assertOk();
+    }
+
+    public function test_departure_bilan_records_equipment(): void
+    {
+        $bilan = Bilan::factory()->create([
+            'title' => 'Bilan de départ',
+            'slug' => Bilan::SLUG_DEPARTURE,
+        ]);
+        $equipment = $bilan->questions()->create([
+            'position' => 1,
+            'title' => 'Tu travailles avec du matériel ?',
+            'type' => BilanQuestionType::Choice,
+            'options' => ['Oui', 'Non'],
+        ]);
+        $details = $bilan->questions()->create([
+            'position' => 2,
+            'title' => 'Précise le matériel (haltères, élastiques…)',
+            'type' => BilanQuestionType::Text,
+        ]);
+        $member = User::factory()->member()->create();
+
+        $this->actingAs($member)
+            ->post(route('member.bilans.store', $bilan), [
+                'answers' => [
+                    $equipment->id => 'Oui',
+                    $details->id => 'Haltères 10 et 20 kg',
+                ],
+            ])
+            ->assertRedirect(route('dashboard'));
+
+        $member->refresh();
+        $this->assertTrue((bool) $member->trains_with_equipment);
+        $this->assertSame('Haltères 10 et 20 kg', $member->equipment_notes);
+        $this->assertSame('Oui', MemberEquipment::statusLabel($member));
     }
 
     public function test_admin_sees_member_bilan_answers(): void

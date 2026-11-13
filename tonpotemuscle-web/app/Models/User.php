@@ -26,6 +26,8 @@ use Illuminate\Notifications\Notifiable;
     'fitness_level',
     'main_goal',
     'motivations',
+    'trains_with_equipment',
+    'equipment_notes',
     'deactivated_at',
 ])]
 #[Hidden(['password', 'remember_token'])]

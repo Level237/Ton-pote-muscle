@@ -49,6 +49,20 @@ class MemberLiveWorkoutTest extends TestCase
             ->assertSee('Voir la démo');
     }
 
+    public function test_live_workout_shows_prescribed_load(): void
+    {
+        [$member, $item] = $this->givenWorkout(loads: true);
+
+        $this->actingAs($member)
+            ->post(route('member.workouts.start', $item));
+
+        $this->actingAs($member)
+            ->get(route('member.workouts.live', $item))
+            ->assertOk()
+            ->assertSee('12 kg', false)
+            ->assertSee('data-live="load"', false);
+    }
+
     public function test_member_can_complete_a_live_workout(): void
     {
         [$member, $item] = $this->givenWorkout();
@@ -139,7 +153,7 @@ class MemberLiveWorkoutTest extends TestCase
     /**
      * @return array{0: User, 1: MemberPlanItem, 2?: Exercise, 3?: Exercise}
      */
-    private function givenWorkout(): array
+    private function givenWorkout(bool $loads = false): array
     {
         $admin = User::factory()->admin()->create();
         $member = User::factory()->member()->create();
@@ -174,6 +188,7 @@ class MemberLiveWorkoutTest extends TestCase
             $admin,
             $workout,
             [now()->toDateString()],
+            $loads ? [(string) $workout->items()->orderBy('position')->first()->id => 12] : [],
         );
 
         $item = $assignment->items()->first();

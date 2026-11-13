@@ -69,6 +69,18 @@
                     @enderror
                 </div>
 
+                <div id="loads-panel">
+                    <p class="mb-2 text-sm text-muted">Charges (kg)</p>
+                    @if ($declinedEquipment)
+                        <p class="mb-2 text-xs text-muted">{{ $firstName }} a indiqué sans matériel. Tu peux quand même poser une charge.</p>
+                    @endif
+                    <p id="loads-empty" class="hidden text-sm text-muted">Cette séance n’a pas d’exercice avec haltères, barre ou kettlebell.</p>
+                    <div id="loads-fields" class="space-y-3"></div>
+                    @error('loads')
+                        <p class="mt-2 text-sm text-danger">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div>
                     <p class="mb-2 text-sm text-muted">Pour les jours</p>
                     <div class="mb-3 flex items-center justify-between gap-3 text-sm text-muted">
@@ -100,7 +112,9 @@
                                 type="radio"
                                 name="program_id"
                                 value="current"
-                                class="peer sr-only"
+                                class="js-program-choice peer sr-only"
+                                data-program="current"
+                                data-week="{{ $currentWeek }}"
                                 @checked(old('program_id') === 'current')
                             >
                             <span class="block rounded-lg border border-border px-4 py-3 peer-checked:border-primary">
@@ -167,6 +181,18 @@
                     <input type="hidden" name="program_week" id="program_week" value="{{ old('program_week', 1) }}">
                 </div>
 
+                <div id="week-loads-panel">
+                    <p class="mb-2 text-sm text-muted">Charges (kg)</p>
+                    @if ($declinedEquipment)
+                        <p class="mb-2 text-xs text-muted">{{ $firstName }} a indiqué sans matériel. Tu peux quand même poser une charge.</p>
+                    @endif
+                    <p id="week-loads-empty" class="hidden text-sm text-muted">Cette semaine n’a pas d’exercice avec haltères, barre ou kettlebell.</p>
+                    <div id="week-loads-fields" class="space-y-3"></div>
+                    @error('week_loads')
+                        <p class="mt-2 text-sm text-danger">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div>
                     <p class="mb-3 text-sm text-muted">Pour</p>
                     <div class="space-y-2">
@@ -198,19 +224,38 @@
 
         <section class="space-y-3">
             <h2 class="text-xs font-semibold uppercase tracking-[0.2em] text-muted">Historique</h2>
-            @forelse ($history as $item)
+            @forelse ($history as $assignment)
                 <article class="border-t border-border py-4">
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
-                            <p class="text-sm font-semibold text-text">{{ $item->label() }}</p>
-                            <p class="mt-0.5 text-xs text-muted">Prévue {{ ProgramWeeks::frenchLongDay($item->planned_on) }}</p>
+                            <p class="text-sm font-semibold text-text">{{ $assignment->title() }}</p>
+                            <p class="mt-0.5 text-xs text-muted">
+                                {{ ProgramWeeks::frenchLongDay($assignment->starts_on) }}
+                                @if ($assignment->ends_on && ! $assignment->starts_on->isSameDay($assignment->ends_on))
+                                    → {{ ProgramWeeks::frenchLongDay($assignment->ends_on) }}
+                                @endif
+                            </p>
                         </div>
-                        <span class="shrink-0 text-[10px] font-bold uppercase tracking-wider text-primary">À faire</span>
                     </div>
-                    <form method="POST" action="{{ route('admin.enrollments.plan.destroy', [$member, $item]) }}" class="mt-3">
+                    <ul class="mt-3 space-y-2">
+                        @foreach ($assignment->items as $item)
+                            <li class="flex items-center justify-between gap-3">
+                                <p class="min-w-0 truncate text-sm text-muted">
+                                    {{ ProgramWeeks::frenchLongDay($item->planned_on) }}
+                                    · {{ $item->label() }}
+                                </p>
+                                <form method="POST" action="{{ route('admin.enrollments.plan.destroy', [$member, $item]) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-sm font-medium text-text hover:text-primary">Retirer</button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <form method="POST" action="{{ route('admin.enrollments.assignments.destroy', [$member, $assignment]) }}" class="mt-3">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-sm font-medium text-text hover:text-primary">Retirer</button>
+                        <button type="submit" class="text-sm font-medium text-danger hover:text-primary">{{ $assignment->cancelLabel() }}</button>
                     </form>
                 </article>
             @empty
@@ -230,6 +275,15 @@
             const workoutSubmit = document.getElementById('give-workout-submit');
             const programSubmit = document.getElementById('give-program-submit');
             const workoutSelect = document.getElementById('workout_id');
+            const loadableByWorkout = @json($loadableByWorkout);
+            const loadableByProgramWeek = @json($loadableByProgramWeek);
+            const oldLoads = @json(old('loads', []));
+            const oldWeekLoads = @json(old('week_loads', []));
+            const loadsFields = document.getElementById('loads-fields');
+            const loadsEmpty = document.getElementById('loads-empty');
+            const loadsPanel = document.getElementById('loads-panel');
+            const weekLoadsFields = document.getElementById('week-loads-fields');
+            const weekLoadsEmpty = document.getElementById('week-loads-empty');
             const weekDays = document.getElementById('week-days');
             const plannedInputs = document.getElementById('planned-on-inputs');
             const weekdayShort = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
@@ -258,6 +312,59 @@
                 programSubmit?.classList.toggle('hidden', mode !== 'program');
             };
 
+            const loadInput = (name, id, title, values) => {
+                const wrap = document.createElement('label');
+                wrap.className = 'flex items-center justify-between gap-3';
+                const label = document.createElement('span');
+                label.className = 'min-w-0 truncate text-sm text-text';
+                label.textContent = title;
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.5';
+                input.min = '0.5';
+                input.max = '200';
+                input.inputMode = 'decimal';
+                input.name = `${name}[${id}]`;
+                input.placeholder = 'kg';
+                input.value = values[id] ?? '';
+                input.className = 'min-h-11 w-24 rounded-lg border border-border bg-bg px-3 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary';
+                wrap.append(label, input);
+                return wrap;
+            };
+
+            const renderLoads = () => {
+                if (!loadsFields) return;
+                const rows = loadableByWorkout[workoutSelect?.value] || [];
+                loadsFields.innerHTML = '';
+                loadsEmpty?.classList.toggle('hidden', rows.length !== 0 || !workoutSelect?.value);
+                loadsPanel?.classList.remove('hidden');
+                if (!workoutSelect?.value) {
+                    loadsEmpty?.classList.add('hidden');
+                }
+                rows.forEach((row) => {
+                    loadsFields.appendChild(loadInput('loads', row.id, row.title, oldLoads));
+                });
+            };
+
+            const renderWeekLoads = () => {
+                if (!weekLoadsFields) return;
+                const selected = form.querySelector('input[name="program_id"]:checked');
+                let rows = [];
+                if (selected?.value === 'current') {
+                    rows = loadableByProgramWeek.current || [];
+                } else if (selected?.value) {
+                    rows = loadableByProgramWeek[selected.value]?.[weekInput?.value || '1'] || [];
+                }
+                weekLoadsFields.innerHTML = '';
+                weekLoadsEmpty?.classList.toggle('hidden', rows.length !== 0 || !selected);
+                if (!selected) {
+                    weekLoadsEmpty?.classList.add('hidden');
+                }
+                rows.forEach((row) => {
+                    weekLoadsFields.appendChild(loadInput('week_loads', row.id, row.title, oldWeekLoads));
+                });
+            };
+
             const filterWorkouts = () => {
                 if (!workoutSelect) return;
                 const category = form.querySelector('input[name="category"]:checked')?.value || '';
@@ -280,6 +387,7 @@
                     workoutSelect.value = '';
                 }
                 void current;
+                renderLoads();
             };
 
             const syncGiveLabel = () => {
@@ -340,14 +448,20 @@
                     button.classList.toggle('text-primary', active);
                     button.classList.toggle('text-muted', !active);
                 });
-                if (weekInput) weekInput.value = String(week);
+                if (programId !== 'current' && weekInput) weekInput.value = String(week);
+                renderWeekLoads();
             };
 
             form.addEventListener('change', (event) => {
-                if (event.target.name === 'mode') syncMode();
+                if (event.target.name === 'mode') {
+                    syncMode();
+                    renderWeekLoads();
+                }
                 if (event.target.name === 'category') filterWorkouts();
+                if (event.target.id === 'workout_id') renderLoads();
                 if (event.target.classList.contains('js-program-choice')) {
-                    showWeek(event.target.dataset.program, weekInput?.value || '1');
+                    const week = event.target.dataset.week || weekInput?.value || '1';
+                    showWeek(event.target.dataset.program, week);
                 }
             });
 
@@ -373,7 +487,11 @@
             filterWorkouts();
             renderWeek();
             const selected = form.querySelector('.js-program-choice:checked');
-            if (selected) showWeek(selected.dataset.program, weekInput?.value || '1');
+            if (selected) {
+                showWeek(selected.dataset.program, selected.dataset.week || weekInput?.value || '1');
+            } else {
+                renderWeekLoads();
+            }
         })();
     </script>
 </x-layouts.admin>

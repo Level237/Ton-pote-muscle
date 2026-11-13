@@ -6,12 +6,14 @@ use App\Enums\EnrollmentStatus;
 use App\Enums\ProgramStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\GiveMemberPlanRequest;
+use App\Models\MemberAssignment;
 use App\Models\MemberPlanItem;
 use App\Models\Program;
 use App\Models\ProgramEnrollment;
 use App\Models\User;
 use App\Models\Workout;
 use App\Models\WorkoutCategory;
+use App\Support\MemberEquipment;
 use App\Support\MemberPlanAssigner;
 use App\Support\MemberTraining;
 use App\Support\ProgramWeeks;
@@ -75,7 +77,7 @@ class MemberController extends Controller
 
         $programs = Program::query()
             ->where('status', '!=', ProgramStatus::Draft)
-            ->with('schedule.workout')
+            ->with('schedule.workout.items.exercise')
             ->latest()
             ->get()
             ->map(function (Program $program) {
@@ -96,7 +98,7 @@ class MemberController extends Controller
         $currentEnrollment = ProgramEnrollment::query()
             ->where('user_id', $user->id)
             ->where('status', EnrollmentStatus::Active)
-            ->with('program.schedule.workout')
+            ->with('program.schedule.workout.items.exercise')
             ->latest('enrolled_at')
             ->first();
 
@@ -105,17 +107,56 @@ class MemberController extends Controller
             $currentWeek = ProgramWeeks::currentWeek($currentEnrollment->program);
         }
 
-        $history = MemberPlanItem::query()
+        $history = MemberAssignment::query()
             ->where('user_id', $user->id)
-            ->with('workout')
-            ->orderByDesc('planned_on')
-            ->limit(30)
+            ->with(['items.workout', 'program', 'workout'])
+            ->latest()
+            ->limit(15)
             ->get();
+
+        $workouts = Workout::query()->with(['category', 'items.exercise'])->orderBy('title')->get();
+        $loadableByWorkout = $workouts->mapWithKeys(function (Workout $workout) {
+            $rows = $workout->items
+                ->filter(fn ($row) => $row->exercise?->usesLoad())
+                ->map(fn ($row) => [
+                    'id' => (string) $row->id,
+                    'title' => $row->exercise?->title ?? 'Exercice',
+                ])
+                ->values();
+
+            return [$workout->id => $rows];
+        })->all();
+
+        $loadableByProgramWeek = [];
+
+        foreach ($programs as $item) {
+            $program = $item['program'];
+
+            foreach ($item['weeks'] as $week => $days) {
+                $weekWorkouts = $days->map(function (array $day) use ($program) {
+                    if ($day['workout_id'] === null) {
+                        return null;
+                    }
+
+                    return $program->schedule->firstWhere('day_number', $day['day_number'])?->workout;
+                });
+
+                $loadableByProgramWeek[$program->id][(string) $week] = MemberEquipment::uniqueLoadableExercises($weekWorkouts);
+            }
+        }
+
+        $loadableByProgramWeek['current'] = [];
+        if ($currentEnrollment?->program && $currentWeek) {
+            $loadableByProgramWeek['current'] = $loadableByProgramWeek[$currentEnrollment->program->id][(string) $currentWeek] ?? [];
+        }
 
         return view('admin.members.give', [
             'member' => $user,
             'categories' => WorkoutCategory::query()->orderBy('title')->get(['id', 'title']),
-            'workouts' => Workout::query()->with('category')->orderBy('title')->get(['id', 'title', 'category_id']),
+            'workouts' => $workouts,
+            'declinedEquipment' => MemberEquipment::declined($user),
+            'loadableByWorkout' => $loadableByWorkout,
+            'loadableByProgramWeek' => $loadableByProgramWeek,
             'programs' => $programs,
             'history' => $history,
             'currentEnrollment' => $currentEnrollment,
@@ -130,9 +171,15 @@ class MemberController extends Controller
         abort_unless($user->isMember() && ! $user->isDeactivated(), 404);
 
         if ($request->input('mode') === 'workout') {
-            $workout = Workout::query()->findOrFail($request->input('workout_id'));
+            $workout = Workout::query()->with('items.exercise')->findOrFail($request->input('workout_id'));
             $dates = $request->input('planned_on', []);
-            $assigner->assignWorkout($user, $request->user(), $workout, is_array($dates) ? $dates : [$dates]);
+            $assigner->assignWorkout(
+                $user,
+                $request->user(),
+                $workout,
+                is_array($dates) ? $dates : [$dates],
+                $request->prescribedLoads($workout),
+            );
 
             return redirect()
                 ->route('admin.enrollments.give', $user)
@@ -144,7 +191,15 @@ class MemberController extends Controller
         $monday = ProgramWeeks::monday(next: $next);
         $from = $next ? $monday : now()->startOfDay();
 
-        $assigner->assignProgramWeek($user, $request->user(), $program, $week, $monday, $from);
+        $assigner->assignProgramWeek(
+            $user,
+            $request->user(),
+            $program,
+            $week,
+            $monday,
+            $from,
+            $request->weekLoads(),
+        );
 
         return redirect()
             ->route('admin.enrollments.show', $user)
@@ -161,6 +216,19 @@ class MemberController extends Controller
         return redirect()
             ->route('admin.enrollments.give', $user)
             ->with('status', 'Séance retirée.');
+    }
+
+    public function destroyAssignment(User $user, MemberAssignment $assignment): RedirectResponse
+    {
+        abort_unless($user->isMember(), 404);
+        abort_unless($assignment->user_id === $user->id, 404);
+
+        $wasWeek = $assignment->isProgramWeek();
+        $assignment->delete();
+
+        return redirect()
+            ->route('admin.enrollments.give', $user)
+            ->with('status', $wasWeek ? 'Semaine annulée.' : 'Don annulé.');
     }
 
     public function deactivate(User $user): RedirectResponse

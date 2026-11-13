@@ -75,6 +75,12 @@ class Exercise extends Model
         return ExerciseCatalog::labels($this->equipments, ExerciseCatalog::EQUIPMENTS);
     }
 
+    public function usesLoad(): bool
+    {
+        return collect($this->equipments ?? [])
+            ->contains(fn (string $key): bool => isset(ExerciseCatalog::LOADABLE[$key]));
+    }
+
     private function publicUrl(?string $path): ?string
     {
         if (! $path) {

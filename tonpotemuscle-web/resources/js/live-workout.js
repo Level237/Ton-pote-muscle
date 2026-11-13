@@ -88,6 +88,7 @@ export function mountLiveWorkout(root) {
         panel: root.querySelector('[data-live="panel"]'),
         phase: root.querySelector('[data-live="phase"]'),
         title: root.querySelector('[data-live="title"]'),
+        load: root.querySelector('[data-live="load"]'),
         meta: root.querySelector('[data-live="meta"]'),
         gif: root.querySelector('[data-live="gif"]'),
         demo: root.querySelector('[data-live="demo"]'),
@@ -151,6 +152,16 @@ export function mountLiveWorkout(root) {
         track.skipped = skipped;
     };
 
+    const withLoad = (exercise) => {
+        if (!exercise) {
+            return '';
+        }
+
+        return exercise.load_label
+            ? `${exercise.work_label} · ${exercise.load_label}`
+            : exercise.work_label;
+    };
+
     const nextLabel = () => {
         const exercise = current();
         const next = following();
@@ -159,16 +170,18 @@ export function mountLiveWorkout(root) {
         }
         if (phase === 'rest') {
             if (setIndex < exercise.sets - 1) {
-                return `À suivre : ${exercise.title} · série ${setIndex + 2}/${exercise.sets}`;
+                const load = exercise.load_label ? ` · ${exercise.load_label}` : '';
+
+                return `À suivre : ${exercise.title} · série ${setIndex + 2}/${exercise.sets}${load}`;
             }
 
-            return next ? `À suivre : ${next.title} (${next.work_label})` : 'Dernier exercice';
+            return next ? `À suivre : ${next.title} (${withLoad(next)})` : 'Dernier exercice';
         }
         if (setIndex < exercise.sets - 1) {
             return `Série ${setIndex + 1} sur ${exercise.sets}`;
         }
 
-        return next ? `Suivant : ${next.title} (${next.work_label})` : 'Dernier exercice';
+        return next ? `Suivant : ${next.title} (${withLoad(next)})` : 'Dernier exercice';
     };
 
     const paint = () => {
@@ -212,6 +225,14 @@ export function mountLiveWorkout(root) {
             ? (setIndex < exercise.sets - 1 ? exercise.title : following()?.title || exercise.title)
             : `${exercise.work_label} · série ${setIndex + 1}/${exercise.sets}`;
         els.meta.className = rest ? 'mt-1 text-sm text-bg/75' : 'mt-1 text-sm text-muted';
+        const load = exercise.load_label || '';
+        if (els.load) {
+            els.load.textContent = load;
+            els.load.classList.toggle('hidden', !load);
+            els.load.className = rest
+                ? `mt-2 font-display text-4xl font-bold tabular-nums text-bg${load ? '' : ' hidden'}`
+                : `mt-2 font-display text-4xl font-bold tabular-nums text-primary${load ? '' : ' hidden'}`;
+        }
         els.progress.textContent = `${index + 1} / ${exercises.length}`;
         els.progress.className = rest
             ? 'text-xs font-semibold tabular-nums text-bg/75'

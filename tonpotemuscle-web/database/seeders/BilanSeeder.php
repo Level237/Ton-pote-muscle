@@ -70,7 +70,12 @@ class BilanSeeder extends Seeder
                 'options' => ['Salle', 'Maison', 'Extérieur'],
             ],
             [
-                'title' => 'Matériel disponible',
+                'title' => 'Tu travailles avec du matériel ?',
+                'type' => BilanQuestionType::Choice,
+                'options' => ['Oui', 'Non'],
+            ],
+            [
+                'title' => 'Précise le matériel (haltères, élastiques…)',
                 'type' => BilanQuestionType::Text,
             ],
             [

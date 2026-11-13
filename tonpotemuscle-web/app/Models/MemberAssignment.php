@@ -69,4 +69,25 @@ class MemberAssignment extends Model
     {
         return $this->hasMany(MemberPlanItem::class)->orderBy('planned_on');
     }
+
+    public function isProgramWeek(): bool
+    {
+        return $this->type === 'program_week';
+    }
+
+    public function title(): string
+    {
+        if ($this->isProgramWeek()) {
+            $program = $this->program?->title ?? 'Programme';
+
+            return 'Semaine '.$this->program_week.' · '.$program;
+        }
+
+        return $this->workout?->title ?? 'Séance';
+    }
+
+    public function cancelLabel(): string
+    {
+        return $this->isProgramWeek() ? 'Annuler la semaine' : 'Annuler le don';
+    }
 }

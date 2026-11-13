@@ -85,6 +85,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('inscrits/{user}/donner', [AdminMemberController::class, 'give'])->name('enrollments.give');
     Route::post('inscrits/{user}/donner', [AdminMemberController::class, 'storeGive'])->name('enrollments.give.store');
     Route::delete('inscrits/{user}/plan/{item}', [AdminMemberController::class, 'destroyPlanItem'])->name('enrollments.plan.destroy');
+    Route::delete('inscrits/{user}/dons/{assignment}', [AdminMemberController::class, 'destroyAssignment'])->name('enrollments.assignments.destroy');
     Route::post('inscrits/{user}/deactivate', [AdminMemberController::class, 'deactivate'])->name('enrollments.deactivate');
     Route::post('inscrits/{user}/activate', [AdminMemberController::class, 'activate'])->name('enrollments.activate');
     Route::get('classements', [AdminRankingController::class, 'index'])->name('rankings.index');
