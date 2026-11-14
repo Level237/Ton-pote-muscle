@@ -1,3 +1,7 @@
+@props([
+    'unreadChat' => 0,
+])
+
 <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden">
     <div class="flex items-stretch">
         <x-member.mobile-tab href="{{ route('dashboard') }}" icon="fa-solid fa-house" :active="request()->routeIs('dashboard')">
@@ -8,6 +12,9 @@
         </x-member.mobile-tab>
         <x-member.mobile-tab href="{{ route('member.bilans.index') }}" icon="fa-solid fa-clipboard-list" :active="request()->routeIs('member.bilans.*')">
             Bilans
+        </x-member.mobile-tab>
+        <x-member.mobile-tab href="{{ route('member.messages.show') }}" icon="fa-solid fa-comment" :active="request()->routeIs('member.messages.*')" :badge="$unreadChat">
+            Messages
         </x-member.mobile-tab>
         <x-member.mobile-tab href="{{ route('member.profile.edit') }}" icon="fa-solid fa-user" :active="request()->routeIs('member.profile.*')">
             Profil

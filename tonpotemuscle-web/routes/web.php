@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BilanController as AdminBilanController;
+use App\Http\Controllers\Admin\ChatController as AdminChatController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ExerciseController as AdminExerciseController;
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Auth\LogoutMemberController;
 use App\Http\Controllers\Auth\RegisterMemberController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Member\BilanController as MemberBilanController;
+use App\Http\Controllers\Member\ChatController as MemberChatController;
 use App\Http\Controllers\Member\DashboardController;
 use App\Http\Controllers\Member\LiveWorkoutController;
 use App\Http\Controllers\Member\ProfileController as MemberProfileController;
@@ -56,6 +58,8 @@ Route::middleware(['auth', 'member'])->group(function (): void {
     Route::get('bilans', [MemberBilanController::class, 'index'])->name('member.bilans.index');
     Route::get('bilans/{bilan}', [MemberBilanController::class, 'show'])->name('member.bilans.show');
     Route::post('bilans/{bilan}', [MemberBilanController::class, 'store'])->name('member.bilans.store');
+    Route::get('messages', [MemberChatController::class, 'show'])->name('member.messages.show');
+    Route::post('messages', [MemberChatController::class, 'store'])->middleware('throttle:30,1')->name('member.messages.store');
     Route::get('profil', [MemberProfileController::class, 'edit'])->name('member.profile.edit');
     Route::put('profil', [MemberProfileController::class, 'update'])->name('member.profile.update');
     Route::post('logout', LogoutMemberController::class)->name('logout');
@@ -80,6 +84,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         ->except('show')
         ->parameters(['programmes' => 'program'])
         ->names('programs');
+    Route::get('messages', [AdminChatController::class, 'index'])->name('messages.index');
+    Route::get('messages/{user}', [AdminChatController::class, 'show'])->name('messages.show');
+    Route::post('messages/{user}', [AdminChatController::class, 'store'])->middleware('throttle:30,1')->name('messages.store');
     Route::get('inscrits', [AdminMemberController::class, 'index'])->name('enrollments.index');
     Route::get('inscrits/{user}', [AdminMemberController::class, 'show'])->name('enrollments.show');
     Route::get('inscrits/{user}/donner', [AdminMemberController::class, 'give'])->name('enrollments.give');

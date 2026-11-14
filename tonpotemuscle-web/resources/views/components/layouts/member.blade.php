@@ -1,5 +1,6 @@
 @props([
     'title' => null,
+    'wide' => false,
 ])
 
 <!DOCTYPE html>
@@ -14,9 +15,21 @@
     </head>
     <body class="min-h-screen bg-bg font-sans text-text antialiased">
         <header class="sticky top-0 z-50 border-b border-border bg-surface">
-            <div class="flex h-14 items-center px-4 lg:px-6">
+            <div class="flex h-14 items-center justify-between px-4 lg:px-6">
                 <a href="{{ route('dashboard') }}" class="inline-flex items-center">
                     <img src="{{ asset('assets/img/logo.webp') }}" alt="Ton Pote Musclé" class="h-7 w-auto">
+                </a>
+                <a
+                    href="{{ route('member.messages.show') }}"
+                    class="relative flex h-11 w-11 items-center justify-center rounded-lg text-muted hover:text-text"
+                    aria-label="Messages"
+                >
+                    <i class="fa-solid fa-comment text-base"></i>
+                    @if (($unreadChat ?? 0) > 0)
+                        <span class="absolute right-1.5 top-1.5">
+                            <x-chat.badge :count="$unreadChat" />
+                        </span>
+                    @endif
                 </a>
             </div>
         </header>
@@ -32,6 +45,9 @@
                     </x-member.nav-link>
                     <x-member.nav-link href="{{ route('member.bilans.index') }}" icon="fa-solid fa-clipboard-list" :active="request()->routeIs('member.bilans.*')">
                         Bilans
+                    </x-member.nav-link>
+                    <x-member.nav-link href="{{ route('member.messages.show') }}" icon="fa-solid fa-comment" :active="request()->routeIs('member.messages.*')" :badge="$unreadChat ?? 0">
+                        Messages
                     </x-member.nav-link>
                     <x-member.nav-link href="{{ route('member.profile.edit') }}" icon="fa-solid fa-user" :active="request()->routeIs('member.profile.*')">
                         Profil
@@ -50,7 +66,7 @@
             </aside>
 
             <main class="min-w-0 flex-1 px-4 py-6 pb-24 lg:px-12 lg:py-10 lg:pb-10">
-                <div class="mx-auto max-w-xl">
+                <div class="mx-auto {{ $wide ? 'max-w-2xl' : 'max-w-xl' }}">
                     @if (session('status'))
                         <p class="mb-6 rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary" role="status">
                             {{ session('status') }}
@@ -61,6 +77,6 @@
             </main>
         </div>
 
-        <x-member.mobile-bar />
+        <x-member.mobile-bar :unread-chat="$unreadChat ?? 0" />
     </body>
 </html>

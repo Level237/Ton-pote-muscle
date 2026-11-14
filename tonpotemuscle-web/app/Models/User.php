@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -104,6 +105,22 @@ class User extends Authenticatable
     public function weightLogs(): HasMany
     {
         return $this->hasMany(WeightLog::class)->orderByDesc('week_start');
+    }
+
+    /**
+     * @return HasMany<CoachMessage, $this>
+     */
+    public function coachMessages(): HasMany
+    {
+        return $this->hasMany(CoachMessage::class, 'member_id');
+    }
+
+    /**
+     * @return HasOne<CoachMessage, $this>
+     */
+    public function latestCoachMessage(): HasOne
+    {
+        return $this->hasOne(CoachMessage::class, 'member_id')->latestOfMany();
     }
 
     /**

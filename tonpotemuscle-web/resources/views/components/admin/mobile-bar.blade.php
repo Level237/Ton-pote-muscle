@@ -1,5 +1,9 @@
+@props([
+    'unreadChat' => 0,
+])
+
 @php
-    $moreOpen = request()->routeIs('admin.enrollments.*', 'admin.rankings.*', 'admin.bilans.*');
+    $moreOpen = request()->routeIs('admin.enrollments.*', 'admin.rankings.*', 'admin.bilans.*', 'admin.messages.*');
 @endphp
 
 <div class="lg:hidden">
@@ -14,6 +18,13 @@
         <a href="{{ route('admin.enrollments.index') }}" class="flex items-center gap-3 px-4 py-3.5 text-sm {{ request()->routeIs('admin.enrollments.*') ? 'text-primary' : 'text-text' }}">
             <i class="fa-solid fa-user-group w-4 text-center text-xs text-muted"></i>
             Inscrits
+        </a>
+        <a href="{{ route('admin.messages.index') }}" class="flex items-center gap-3 border-t border-border px-4 py-3.5 text-sm {{ request()->routeIs('admin.messages.*') ? 'text-primary' : 'text-text' }}">
+            <i class="fa-solid fa-comment w-4 text-center text-xs text-muted"></i>
+            <span class="flex flex-1 items-center justify-between gap-2">
+                Messages
+                <x-chat.badge :count="$unreadChat" />
+            </span>
         </a>
         <a href="{{ route('admin.rankings.index') }}" class="flex items-center gap-3 border-t border-border px-4 py-3.5 text-sm {{ request()->routeIs('admin.rankings.*') ? 'text-primary' : 'text-text' }}">
             <i class="fa-solid fa-trophy w-4 text-center text-xs text-muted"></i>

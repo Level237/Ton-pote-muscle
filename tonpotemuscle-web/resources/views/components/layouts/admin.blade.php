@@ -13,7 +13,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen bg-bg font-sans text-text antialiased">
-        <x-admin.top-bar />
+        <x-admin.top-bar :unread-chat="$unreadChat ?? 0" />
 
         <div class="flex min-h-[calc(100vh-3.5rem)]">
             <aside class="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-56 shrink-0 flex-col border-r border-border bg-surface lg:flex">
@@ -35,6 +35,9 @@
                     </x-admin.nav-link>
                     <x-admin.nav-link href="{{ route('admin.enrollments.index') }}" icon="fa-solid fa-user-group" :active="request()->routeIs('admin.enrollments.*')">
                         Inscrits
+                    </x-admin.nav-link>
+                    <x-admin.nav-link href="{{ route('admin.messages.index') }}" icon="fa-solid fa-comment" :active="request()->routeIs('admin.messages.*')" :badge="$unreadChat ?? 0">
+                        Messages
                     </x-admin.nav-link>
                     <x-admin.nav-link href="{{ route('admin.rankings.index') }}" icon="fa-solid fa-trophy" :active="request()->routeIs('admin.rankings.*')">
                         Classements
@@ -64,6 +67,6 @@
             </main>
         </div>
 
-        <x-admin.mobile-bar />
+        <x-admin.mobile-bar :unread-chat="$unreadChat ?? 0" />
     </body>
 </html>

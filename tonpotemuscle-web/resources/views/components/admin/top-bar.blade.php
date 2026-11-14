@@ -1,3 +1,7 @@
+@props([
+    'unreadChat' => 0,
+])
+
 @php
     $user = auth()->user();
     $initials = strtoupper(mb_substr($user->name ?: $user->username, 0, 1));
@@ -9,7 +13,20 @@
             <img src="{{ asset('assets/img/logo.webp') }}" alt="Ton Pote Musclé" class="h-7 w-auto">
         </a>
 
-        <div class="relative">
+        <div class="flex items-center gap-2">
+            <a
+                href="{{ route('admin.messages.index') }}"
+                class="relative flex h-11 w-11 items-center justify-center rounded-lg text-muted hover:text-text"
+                aria-label="Messages"
+            >
+                <i class="fa-solid fa-comment text-base"></i>
+                @if ((int) $unreadChat > 0)
+                    <span class="absolute right-1.5 top-1.5">
+                        <x-chat.badge :count="$unreadChat" />
+                    </span>
+                @endif
+            </a>
+            <div class="relative">
             <input id="admin-account" type="checkbox" class="peer hidden">
 
             <label
@@ -37,6 +54,7 @@
                         Déconnexion
                     </button>
                 </form>
+            </div>
             </div>
         </div>
     </div>
