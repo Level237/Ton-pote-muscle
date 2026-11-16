@@ -19,7 +19,7 @@ class MemberWeightLogTest extends TestCase
         $member = User::factory()->member()->create();
 
         $this->actingAs($member)
-            ->get(route('dashboard'))
+            ->get(route('dashboard', ['suivi' => 'pese']))
             ->assertOk()
             ->assertSee('Pesée de la semaine')
             ->assertSee('Enregistrer');
@@ -31,7 +31,7 @@ class MemberWeightLogTest extends TestCase
 
         $this->actingAs($member)
             ->post(route('member.weight.store'), ['weight_kg' => 68.5])
-            ->assertRedirect(route('dashboard'));
+            ->assertRedirect(route('dashboard', ['suivi' => 'pese']).'#suivi');
 
         $member->refresh();
         $this->assertSame('68.50', (string) $member->weight_kg);
@@ -42,7 +42,7 @@ class MemberWeightLogTest extends TestCase
         ]);
 
         $this->actingAs($member)
-            ->get(route('dashboard'))
+            ->get(route('dashboard', ['suivi' => 'pese']))
             ->assertOk()
             ->assertSee('68,5 kg')
             ->assertSee('Mettre à jour');
@@ -97,7 +97,7 @@ class MemberWeightLogTest extends TestCase
         MemberWeight::record($member, 74.2, Carbon::parse('2026-11-09'));
 
         $this->actingAs($admin)
-            ->get(route('admin.enrollments.show', $member))
+            ->get(route('admin.enrollments.show', ['user' => $member, 'suivi' => 'pese']))
             ->assertOk()
             ->assertSee('Pesée de la semaine')
             ->assertSee('74,2 kg')

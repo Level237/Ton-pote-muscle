@@ -14,7 +14,7 @@ class WeightLogController extends Controller
         MemberWeight::record($request->user(), $request->input('weight_kg'));
 
         return redirect()
-            ->route('dashboard')
+            ->to(route('dashboard', ['suivi' => 'pese']).'#suivi')
             ->with('status', 'Pesée enregistrée.');
     }
 }

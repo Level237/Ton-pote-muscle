@@ -29,6 +29,7 @@ use Illuminate\Notifications\Notifiable;
     'motivations',
     'trains_with_equipment',
     'equipment_notes',
+    'hydration_goal_glasses',
     'deactivated_at',
 ])]
 #[Hidden(['password', 'remember_token'])]
@@ -49,6 +50,7 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'motivations' => 'array',
             'weight_kg' => 'decimal:2',
+            'hydration_goal_glasses' => 'integer',
         ];
     }
 
@@ -105,6 +107,30 @@ class User extends Authenticatable
     public function weightLogs(): HasMany
     {
         return $this->hasMany(WeightLog::class)->orderByDesc('week_start');
+    }
+
+    /**
+     * @return HasMany<HydrationLog, $this>
+     */
+    public function hydrationLogs(): HasMany
+    {
+        return $this->hasMany(HydrationLog::class)->orderByDesc('day');
+    }
+
+    /**
+     * @return HasMany<MealLog, $this>
+     */
+    public function mealLogs(): HasMany
+    {
+        return $this->hasMany(MealLog::class)->orderByDesc('day');
+    }
+
+    /**
+     * @return HasOne<MemberMealPlan, $this>
+     */
+    public function mealPlan(): HasOne
+    {
+        return $this->hasOne(MemberMealPlan::class);
     }
 
     /**

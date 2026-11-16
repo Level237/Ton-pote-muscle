@@ -7,11 +7,18 @@
     $tabRoute = $tabRoute ?? 'dashboard';
     $tabParams = $tabParams ?? [];
     $firstName = explode(' ', trim($member->name))[0];
+    $suivi = $suivi ?? 'eau';
     $tabUrl = fn (string $vue, ?string $range = null) => route($tabRoute, array_filter(array_merge($tabParams, [
         'vue' => $vue,
         'week' => $monday->toDateString(),
         'range' => $vue === 'progres' ? ($range ?? 'month') : null,
+        'suivi' => $vue === 'accueil' && in_array($suivi, ['pese', 'repas'], true) ? $suivi : null,
     ])));
+    $suiviUrl = fn (string $tab) => route($tabRoute, array_filter(array_merge($tabParams, [
+        'vue' => 'accueil',
+        'week' => $monday->toDateString(),
+        'suivi' => $tab === 'eau' ? null : $tab,
+    ]))).'#suivi';
     $weekUrl = fn (Carbon $start) => route($tabRoute, array_merge($tabParams, [
         'vue' => $view,
         'week' => $start->toDateString(),
@@ -36,7 +43,7 @@
                     ← Inscrits
                 </a>
             @endif
-            <h1 class="{{ $coach ? 'mt-4' : '' }} font-display text-3xl font-bold uppercase tracking-wide">Bonjour {{ $firstName }}.</h1>
+            <h1 class="{{ $coach ? 'mt-4' : '' }} font-display text-2xl max-sm:text-xl font-bold uppercase tracking-wide">Bonjour <span class="max-sm:text-xl text-2xl lowercase">{{ $firstName }}</span> .</h1>
             @if ($coach)
                 <p class="mt-1 text-sm text-muted">
                     @if ($member->username)
@@ -68,7 +75,21 @@
     @if ($view === 'accueil')
         <p class="text-sm text-muted">Cette semaine · {{ $weekDone }} séance{{ $weekDone > 1 ? 's' : '' }} sur {{ $weekWorkouts }}</p>
 
-        @include('training._weight-card')
+        <div id="suivi" class="space-y-3">
+            <div class="flex border border-border bg-surface p-1 text-sm">
+                <a href="{{ $suiviUrl('eau') }}" class="flex min-h-11 flex-1 items-center justify-center px-2 font-medium {{ $suivi === 'eau' ? 'bg-text text-bg' : 'text-muted hover:text-text' }}">Eau</a>
+                <a href="{{ $suiviUrl('repas') }}" class="flex min-h-11 flex-1 items-center justify-center px-2 font-medium {{ $suivi === 'repas' ? 'bg-text text-bg' : 'text-muted hover:text-text' }}">Repas</a>
+                <a href="{{ $suiviUrl('pese') }}" class="flex min-h-11 flex-1 items-center justify-center px-2 font-medium {{ $suivi === 'pese' ? 'bg-text text-bg' : 'text-muted hover:text-text' }}">Pesée</a>
+            </div>
+            @if ($suivi === 'eau')
+                @include('training._hydration-card')
+            @elseif ($suivi === 'repas')
+                @include('training._meal-card')
+            @else
+                @include('training._weight-card')
+            @endif
+        </div>
+
         @include('training._equipment-card')
 
         <div class="grid grid-cols-7 gap-1">

@@ -165,7 +165,13 @@ final class MemberTraining
      *     progress: array{count: int, previous: int, bars: list<array{label: string, count: int, current: bool}>},
      *     enrollments: Collection<int, ProgramEnrollment>,
      *     weightLogs: Collection<int, WeightLog>,
-     *     weekWeight: WeightLog|null
+     *     weekWeight: WeightLog|null,
+     *     hydrationGoal: int,
+     *     todayHydration: int,
+     *     weekHydration: list<array{date: Carbon, key: string, letter: string, glasses: int, goal: int, is_today: bool}>,
+     *     weekMeals: list<array<string, mixed>>,
+     *     todayMeals: array<string, mixed>|null,
+     *     suivi: string
      * }
      */
     public static function board(User $member, Request $request): array
@@ -176,6 +182,9 @@ final class MemberTraining
         $range = in_array($request->query('range'), ['week', 'month', 'year'], true)
             ? $request->query('range')
             : 'month';
+        $suivi = in_array($request->query('suivi'), ['pese', 'repas'], true)
+            ? $request->query('suivi')
+            : 'eau';
 
         $monday = ProgramWeeks::monday();
         if ($request->filled('week')) {
@@ -223,6 +232,11 @@ final class MemberTraining
             })
             ->values();
 
+        $currentMonday = ProgramWeeks::monday();
+        $weekHydration = MemberHydration::week($member, $currentMonday);
+        $weekMeals = MemberMeals::week($member, $currentMonday);
+        $member->loadMissing('mealPlan');
+
         return [
             'view' => $view,
             'range' => $range,
@@ -239,6 +253,13 @@ final class MemberTraining
                 ->get(),
             'weightLogs' => $weightLogs,
             'weekWeight' => $weekWeight,
+            'hydrationGoal' => MemberHydration::goal($member),
+            'weekHydration' => $weekHydration,
+            'todayHydration' => (int) (collect($weekHydration)->firstWhere('is_today')['glasses'] ?? 0),
+            'weekMeals' => $weekMeals,
+            'todayMeals' => collect($weekMeals)->firstWhere('is_today'),
+            'mealPlan' => $member->mealPlan,
+            'suivi' => $suivi,
         ];
     }
 }

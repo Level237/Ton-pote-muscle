@@ -169,7 +169,9 @@ class AdminMemberTest extends TestCase
             ->assertSee('Accueil')
             ->assertSee('Semaine')
             ->assertSee('Progrès')
-            ->assertSee('Pesée de la semaine')
+            ->assertSee('Eau aujourd’hui')
+            ->assertSee('Repas')
+            ->assertSee('Pesée')
             ->assertSee('Matériel')
             ->assertSee('Non renseigné')
             ->assertDontSee('Enregistrer');
