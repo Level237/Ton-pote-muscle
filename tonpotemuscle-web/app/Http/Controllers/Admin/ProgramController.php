@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\ProgramStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProgramRequest;
+use App\Models\Exercise;
 use App\Models\Program;
 use App\Models\Workout;
 use Illuminate\Http\RedirectResponse;
@@ -125,6 +126,7 @@ class ProgramController extends Controller
         return [
             'program' => $program,
             'workouts' => Workout::query()->orderBy('title')->get(['id', 'title']),
+            'exercises' => Exercise::query()->orderBy('title')->get(['id', 'title']),
             'slots' => $slots,
         ];
     }

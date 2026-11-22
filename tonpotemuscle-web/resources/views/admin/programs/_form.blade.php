@@ -72,45 +72,37 @@
                     type="button"
                     id="add-program-slot"
                     class="text-sm font-medium text-primary hover:text-primary-hover"
-                    @disabled($workouts->isEmpty())
                 >
                     Ajouter
                 </button>
             </div>
 
-            @if ($workouts->isEmpty())
-                <p class="rounded-xl border border-border bg-bg px-4 py-3 text-sm text-muted">
-                    <a href="{{ route('admin.workouts.create') }}" class="text-primary hover:text-primary-hover">Crée une séance</a>
-                    avant de composer un programme.
-                </p>
-            @else
-                <ul id="program-slots" class="space-y-3">
-                    @foreach ($slots as $index => $slot)
-                        @include('admin.programs._slot', [
-                            'index' => $index,
-                            'slot' => $slot,
-                            'workouts' => $workouts,
-                            'startsOn' => $startsOn,
-                        ])
-                    @endforeach
-                </ul>
-                @error('slots')
-                    <p class="mt-1.5 text-sm text-danger">{{ $message }}</p>
-                @enderror
-
-                <template id="program-slot-template">
+            <ul id="program-slots" class="space-y-3">
+                @foreach ($slots as $index => $slot)
                     @include('admin.programs._slot', [
-                        'index' => '__INDEX__',
-                        'slot' => [
-                            'day_number' => '',
-                            'kind' => 'rest',
-                            'workout_id' => '',
-                        ],
+                        'index' => $index,
+                        'slot' => $slot,
                         'workouts' => $workouts,
                         'startsOn' => $startsOn,
                     ])
-                </template>
-            @endif
+                @endforeach
+            </ul>
+            @error('slots')
+                <p class="mt-1.5 text-sm text-danger">{{ $message }}</p>
+            @enderror
+
+            <template id="program-slot-template">
+                @include('admin.programs._slot', [
+                    'index' => '__INDEX__',
+                    'slot' => [
+                        'day_number' => '',
+                        'kind' => 'rest',
+                        'workout_id' => '',
+                    ],
+                    'workouts' => $workouts,
+                    'startsOn' => $startsOn,
+                ])
+            </template>
         </div>
     </div>
 
@@ -147,50 +139,74 @@
     </div>
 </div>
 
-@if ($workouts->isNotEmpty())
-    <script>
-        (() => {
-            const list = document.getElementById('program-slots');
-            const template = document.getElementById('program-slot-template');
-            const addButton = document.getElementById('add-program-slot');
-            if (!list || !template || !addButton) return;
+<script>
+    (() => {
+        const CREATE_VALUE = '__new__';
+        const list = document.getElementById('program-slots');
+        const template = document.getElementById('program-slot-template');
+        const addButton = document.getElementById('add-program-slot');
+        if (!list || !template || !addButton) return;
 
-            let nextIndex = list.querySelectorAll('.program-slot').length;
+        let nextIndex = list.querySelectorAll('.program-slot').length;
 
-            const syncKind = (slot) => {
-                const kind = slot.querySelector('.js-slot-kind')?.value;
-                const wrap = slot.querySelector('.js-slot-workout-wrap');
-                const select = slot.querySelector('.js-slot-workout');
-                const isRest = kind === 'rest';
-                wrap?.classList.toggle('hidden', isRest);
-                if (select) {
-                    select.disabled = isRest;
-                    if (isRest) select.value = '';
-                }
-            };
+        const syncKind = (slot) => {
+            const kind = slot.querySelector('.js-slot-kind')?.value;
+            const wrap = slot.querySelector('.js-slot-workout-wrap');
+            const select = slot.querySelector('.js-slot-workout');
+            const isRest = kind === 'rest';
+            wrap?.classList.toggle('hidden', isRest);
+            if (select) {
+                select.disabled = isRest;
+                if (isRest) select.value = '';
+            }
+        };
 
-            addButton.addEventListener('click', () => {
-                const html = template.innerHTML.replaceAll('__INDEX__', String(nextIndex++));
-                list.insertAdjacentHTML('beforeend', html);
-                const slot = list.lastElementChild;
-                if (slot) syncKind(slot);
-            });
+        const openCreate = (select) => {
+            window.programWorkoutComposer?.open(select);
+        };
 
-            list.addEventListener('change', (event) => {
-                if (!event.target.classList.contains('js-slot-kind')) return;
+        addButton.addEventListener('click', () => {
+            const html = template.innerHTML.replaceAll('__INDEX__', String(nextIndex++));
+            list.insertAdjacentHTML('beforeend', html);
+            const slot = list.lastElementChild;
+            if (slot) syncKind(slot);
+        });
+
+        list.addEventListener('focusin', (event) => {
+            if (!event.target.classList.contains('js-slot-workout')) return;
+            event.target.dataset.previousValue = event.target.value;
+        });
+
+        list.addEventListener('change', (event) => {
+            if (event.target.classList.contains('js-slot-kind')) {
                 const slot = event.target.closest('.program-slot');
                 if (slot) syncKind(slot);
-            });
+                return;
+            }
 
-            list.addEventListener('click', (event) => {
-                const slot = event.target.closest('.program-slot');
-                if (!slot || !event.target.closest('.js-slot-remove')) return;
-                if (list.querySelectorAll('.program-slot').length > 1) {
-                    slot.remove();
-                }
-            });
+            if (!event.target.classList.contains('js-slot-workout')) return;
 
-            list.querySelectorAll('.program-slot').forEach(syncKind);
-        })();
-    </script>
-@endif
+            if (event.target.value === CREATE_VALUE) {
+                event.target.value = event.target.dataset.previousValue || '';
+                openCreate(event.target);
+            }
+        });
+
+        list.addEventListener('click', (event) => {
+            const slot = event.target.closest('.program-slot');
+            if (!slot) return;
+
+            if (event.target.closest('.js-create-workout')) {
+                openCreate(slot.querySelector('.js-slot-workout'));
+                return;
+            }
+
+            if (!event.target.closest('.js-slot-remove')) return;
+            if (list.querySelectorAll('.program-slot').length > 1) {
+                slot.remove();
+            }
+        });
+
+        list.querySelectorAll('.program-slot').forEach(syncKind);
+    })();
+</script>

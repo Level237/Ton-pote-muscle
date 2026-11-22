@@ -38,7 +38,15 @@
     </div>
 
     <div class="js-slot-workout-wrap {{ $kind === 'rest' ? 'hidden' : '' }}">
-        <label class="mb-1.5 block text-sm font-medium text-text" for="slots-{{ $index }}-workout">Séance</label>
+        <div class="mb-1.5 flex items-center justify-between gap-3">
+            <label class="block text-sm font-medium text-text" for="slots-{{ $index }}-workout">Séance</label>
+            <button
+                type="button"
+                class="js-create-workout text-sm font-medium text-primary hover:text-primary-hover"
+            >
+                + Nouvelle
+            </button>
+        </div>
         <select
             id="slots-{{ $index }}-workout"
             name="slots[{{ $index }}][workout_id]"
@@ -51,6 +59,7 @@
                     {{ $workout->title }}
                 </option>
             @endforeach
+            <option value="__new__">+ Nouvelle séance</option>
         </select>
         @error('slots.'.$index.'.workout_id')
             <p class="mt-1.5 text-sm text-danger">{{ $message }}</p>

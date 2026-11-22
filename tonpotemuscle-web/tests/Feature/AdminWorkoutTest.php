@@ -110,6 +110,31 @@ class AdminWorkoutTest extends TestCase
         $this->assertSame(40, $workout->items[1]->duration_seconds);
     }
 
+    public function test_admin_can_create_a_workout_as_json(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $pompes = Exercise::factory()->create(['title' => 'Pompes']);
+
+        $this->actingAs($admin)
+            ->postJson(route('admin.workouts.store'), [
+                'title' => 'Full body',
+                'difficulty' => 'beginner',
+                'items' => [
+                    [
+                        'exercise_id' => $pompes->id,
+                        'sets' => 3,
+                        'reps' => 12,
+                        'rest_seconds' => 30,
+                    ],
+                ],
+            ])
+            ->assertCreated()
+            ->assertJsonPath('title', 'Full body')
+            ->assertJsonStructure(['id', 'title']);
+
+        $this->assertDatabaseHas('workouts', ['title' => 'Full body']);
+    }
+
     public function test_workout_requires_an_exercise(): void
     {
         $admin = User::factory()->admin()->create();

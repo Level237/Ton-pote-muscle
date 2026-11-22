@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\WorkoutRequest;
 use App\Models\Exercise;
 use App\Models\Workout;
 use App\Models\WorkoutCategory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +42,7 @@ class WorkoutController extends Controller
         return view('admin.workouts.create', $this->formData(new Workout));
     }
 
-    public function store(WorkoutRequest $request): RedirectResponse
+    public function store(WorkoutRequest $request): RedirectResponse|JsonResponse
     {
         $workout = DB::transaction(function () use ($request) {
             $workout = Workout::query()->create($this->payload($request));
@@ -50,6 +51,13 @@ class WorkoutController extends Controller
 
             return $workout;
         });
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'id' => $workout->id,
+                'title' => $workout->title,
+            ], 201);
+        }
 
         return redirect()
             ->route('admin.workouts.index')

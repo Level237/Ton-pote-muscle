@@ -25,7 +25,9 @@ class ProgramRequest extends FormRequest
                 return [
                     'day_number' => $slot['day_number'],
                     'kind' => $kind,
-                    'workout_id' => $kind === 'rest' ? null : ($slot['workout_id'] ?? null),
+                    'workout_id' => $kind === 'rest' || ($slot['workout_id'] ?? '') === '__new__'
+                        ? null
+                        : ($slot['workout_id'] ?? null),
                 ];
             })
             ->filter(fn (array $slot): bool => $slot['kind'] === 'rest' || filled($slot['workout_id']))

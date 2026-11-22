@@ -19,6 +19,8 @@
             </div>
         </form>
 
+        @include('admin.programs._workout-dialog')
+
         <form method="POST" action="{{ route('admin.programs.destroy', $program) }}">
             @csrf
             @method('DELETE')

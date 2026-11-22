@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\ProgramStatus;
+use App\Models\Exercise;
 use App\Models\Program;
 use App\Models\User;
 use App\Models\Workout;
@@ -61,6 +62,21 @@ class AdminProgramTest extends TestCase
             ->assertOk()
             ->assertSee('4 semaines')
             ->assertDontSee('Cut');
+    }
+
+    public function test_admin_can_compose_a_program_without_existing_workouts(): void
+    {
+        $admin = User::factory()->admin()->create();
+        Exercise::factory()->create(['title' => 'Pompes']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.programs.create'))
+            ->assertOk()
+            ->assertSee('Calendrier')
+            ->assertSee('+ Nouvelle')
+            ->assertSee('Nouvelle séance')
+            ->assertSee('inline-workout-dialog')
+            ->assertDontSee('avant de composer un programme.');
     }
 
     public function test_admin_can_create_a_program_with_a_calendar(): void

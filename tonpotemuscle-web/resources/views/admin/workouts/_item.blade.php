@@ -1,13 +1,14 @@
 @php
     $inputClass = 'min-h-11 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary';
+    $idPrefix = $idPrefix ?? '';
 @endphp
 
 <li class="workout-item space-y-3 rounded-xl border border-border bg-bg p-4">
     <div class="flex items-start gap-3">
         <div class="min-w-0 flex-1">
-            <label class="mb-1.5 block text-sm font-medium text-text" for="items-{{ $index }}-exercise">Exercice</label>
+            <label class="mb-1.5 block text-sm font-medium text-text" for="{{ $idPrefix }}items-{{ $index }}-exercise">Exercice</label>
             <select
-                id="items-{{ $index }}-exercise"
+                id="{{ $idPrefix }}items-{{ $index }}-exercise"
                 name="items[{{ $index }}][exercise_id]"
                 class="{{ $inputClass }}"
             >
@@ -42,7 +43,7 @@
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <x-admin.form.field :name="'items.'.$index.'.sets'" label="Séries">
             <input
-                id="items-{{ $index }}-sets"
+                id="{{ $idPrefix }}items-{{ $index }}-sets"
                 name="items[{{ $index }}][sets]"
                 type="number"
                 min="1"
@@ -55,7 +56,7 @@
 
         <x-admin.form.field :name="'items.'.$index.'.reps'" label="Reps">
             <input
-                id="items-{{ $index }}-reps"
+                id="{{ $idPrefix }}items-{{ $index }}-reps"
                 name="items[{{ $index }}][reps]"
                 type="number"
                 min="1"
@@ -67,7 +68,7 @@
 
         <x-admin.form.field :name="'items.'.$index.'.duration_seconds'" label="Durée (s)">
             <input
-                id="items-{{ $index }}-duration"
+                id="{{ $idPrefix }}items-{{ $index }}-duration"
                 name="items[{{ $index }}][duration_seconds]"
                 type="number"
                 min="1"
@@ -79,7 +80,7 @@
 
         <x-admin.form.field :name="'items.'.$index.'.rest_seconds'" label="Repos (s)">
             <input
-                id="items-{{ $index }}-rest"
+                id="{{ $idPrefix }}items-{{ $index }}-rest"
                 name="items[{{ $index }}][rest_seconds]"
                 type="number"
                 min="0"
