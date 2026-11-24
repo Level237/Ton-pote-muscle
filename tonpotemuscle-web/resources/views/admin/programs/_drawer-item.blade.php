@@ -11,7 +11,7 @@
             <select
                 id="{{ $idPrefix }}items-{{ $index }}-exercise"
                 name="items[{{ $index }}][exercise_id]"
-                class="min-h-11 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary"
+                class="js-exercise-select min-h-11 w-full rounded-lg border border-border bg-bg px-3 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary"
             >
                 <option value="">Choisir un exercice</option>
                 @foreach ($exercises as $exercise)
@@ -19,6 +19,7 @@
                         {{ $exercise->title }}
                     </option>
                 @endforeach
+                <option value="__new__">+ Nouvel exercice</option>
             </select>
         </div>
         <div class="flex shrink-0 items-center">

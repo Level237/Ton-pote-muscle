@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ExerciseRequest;
 use App\Models\Exercise;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -38,10 +39,17 @@ class ExerciseController extends Controller
         ]);
     }
 
-    public function store(ExerciseRequest $request): RedirectResponse
+    public function store(ExerciseRequest $request): RedirectResponse|JsonResponse
     {
         $exercise = Exercise::query()->create($this->payload($request));
         $this->syncMedia($request, $exercise);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'id' => $exercise->id,
+                'title' => $exercise->title,
+            ], 201);
+        }
 
         return redirect()
             ->route('admin.exercises.index')

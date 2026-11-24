@@ -49,49 +49,46 @@
         <div>
             <div class="mb-2 flex items-center justify-between gap-3">
                 <h2 class="text-sm font-medium text-text">Exercices</h2>
-                <button
-                    type="button"
-                    id="add-workout-item"
-                    class="text-sm font-medium text-primary hover:text-primary-hover"
-                    @disabled($exercises->isEmpty())
-                >
-                    Ajouter
-                </button>
+                <div class="flex items-center gap-4">
+                    <button type="button" class="js-create-exercise text-sm font-medium text-primary hover:text-primary-hover">
+                        + Nouvel
+                    </button>
+                    <button
+                        type="button"
+                        id="add-workout-item"
+                        class="text-sm font-medium text-primary hover:text-primary-hover"
+                    >
+                        Ajouter
+                    </button>
+                </div>
             </div>
 
-            @if ($exercises->isEmpty())
-                <p class="rounded-xl border border-border bg-bg px-4 py-3 text-sm text-muted">
-                    <a href="{{ route('admin.exercises.create') }}" class="text-primary hover:text-primary-hover">Crée un exercice</a>
-                    avant de composer une séance.
-                </p>
-            @else
-                <ul id="workout-items" class="space-y-3">
-                    @foreach ($items as $index => $item)
-                        @include('admin.workouts._item', [
-                            'index' => $index,
-                            'item' => $item,
-                            'exercises' => $exercises,
-                        ])
-                    @endforeach
-                </ul>
-                @error('items')
-                    <p class="mt-1.5 text-sm text-danger">{{ $message }}</p>
-                @enderror
-
-                <template id="workout-item-template">
+            <ul id="workout-items" class="space-y-3" data-workout-items>
+                @foreach ($items as $index => $item)
                     @include('admin.workouts._item', [
-                        'index' => '__INDEX__',
-                        'item' => [
-                            'exercise_id' => '',
-                            'sets' => 1,
-                            'reps' => '',
-                            'duration_seconds' => '',
-                            'rest_seconds' => 30,
-                        ],
+                        'index' => $index,
+                        'item' => $item,
                         'exercises' => $exercises,
                     ])
-                </template>
-            @endif
+                @endforeach
+            </ul>
+            @error('items')
+                <p class="mt-1.5 text-sm text-danger">{{ $message }}</p>
+            @enderror
+
+            <template id="workout-item-template">
+                @include('admin.workouts._item', [
+                    'index' => '__INDEX__',
+                    'item' => [
+                        'exercise_id' => '',
+                        'sets' => 1,
+                        'reps' => '',
+                        'duration_seconds' => '',
+                        'rest_seconds' => 30,
+                    ],
+                    'exercises' => $exercises,
+                ])
+            </template>
         </div>
     </div>
 
@@ -109,43 +106,41 @@
     </div>
 </div>
 
-@if ($exercises->isNotEmpty())
-    <script>
-        (() => {
-            const list = document.getElementById('workout-items');
-            const template = document.getElementById('workout-item-template');
-            const addButton = document.getElementById('add-workout-item');
-            if (!list || !template || !addButton) return;
+<script>
+    (() => {
+        const list = document.getElementById('workout-items');
+        const template = document.getElementById('workout-item-template');
+        const addButton = document.getElementById('add-workout-item');
+        if (!list || !template || !addButton) return;
 
-            let nextIndex = list.querySelectorAll('.workout-item').length;
+        let nextIndex = list.querySelectorAll('.workout-item').length;
 
-            const addItem = () => {
-                const html = template.innerHTML.replaceAll('__INDEX__', String(nextIndex++));
-                list.insertAdjacentHTML('beforeend', html);
-            };
+        const addItem = () => {
+            const html = template.innerHTML.replaceAll('__INDEX__', String(nextIndex++));
+            list.insertAdjacentHTML('beforeend', html);
+        };
 
-            addButton.addEventListener('click', addItem);
+        addButton.addEventListener('click', addItem);
 
-            list.addEventListener('click', (event) => {
-                const item = event.target.closest('.workout-item');
-                if (!item) return;
+        list.addEventListener('click', (event) => {
+            const item = event.target.closest('.workout-item');
+            if (!item) return;
 
-                if (event.target.closest('.js-item-remove')) {
-                    if (list.querySelectorAll('.workout-item').length > 1) {
-                        item.remove();
-                    }
-                    return;
+            if (event.target.closest('.js-item-remove')) {
+                if (list.querySelectorAll('.workout-item').length > 1) {
+                    item.remove();
                 }
+                return;
+            }
 
-                if (event.target.closest('.js-item-up') && item.previousElementSibling) {
-                    item.previousElementSibling.before(item);
-                    return;
-                }
+            if (event.target.closest('.js-item-up') && item.previousElementSibling) {
+                item.previousElementSibling.before(item);
+                return;
+            }
 
-                if (event.target.closest('.js-item-down') && item.nextElementSibling) {
-                    item.nextElementSibling.after(item);
-                }
-            });
-        })();
-    </script>
-@endif
+            if (event.target.closest('.js-item-down') && item.nextElementSibling) {
+                item.nextElementSibling.after(item);
+            }
+        });
+    })();
+</script>

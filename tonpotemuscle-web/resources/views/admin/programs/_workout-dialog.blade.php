@@ -30,12 +30,6 @@
         <div class="min-h-0 flex-1 overflow-y-auto px-6 py-6">
             <div id="inline-workout-errors" class="mb-5 hidden rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger"></div>
 
-            @if ($exercises->isEmpty())
-                <p class="rounded-xl border border-border bg-bg px-4 py-3 text-sm text-muted">
-                    <a href="{{ route('admin.exercises.create') }}" class="text-primary hover:text-primary-hover">Crée un exercice</a>
-                    avant de composer une séance.
-                </p>
-            @else
                 <div class="space-y-6">
                     <div>
                         <label class="mb-1.5 block text-sm font-medium text-text" for="inline-workout-title">Titre</label>
@@ -70,11 +64,16 @@
                                 <h3 class="text-sm font-medium text-text">Composition</h3>
                                 <p class="text-xs text-muted">Ordre = déroulé du live</p>
                             </div>
-                            <button type="button" id="inline-add-workout-item" class="text-sm font-medium text-primary hover:text-primary-hover">
-                                + Exercice
-                            </button>
+                            <div class="flex items-center gap-4">
+                                <button type="button" class="js-create-exercise text-sm font-medium text-primary hover:text-primary-hover">
+                                    + Nouvel
+                                </button>
+                                <button type="button" id="inline-add-workout-item" class="text-sm font-medium text-primary hover:text-primary-hover">
+                                    + Exercice
+                                </button>
+                            </div>
                         </div>
-                        <ul id="inline-workout-items" class="space-y-2">
+                        <ul id="inline-workout-items" class="space-y-2" data-workout-items>
                             @include('admin.programs._drawer-item', [
                                 'index' => 0,
                                 'idPrefix' => 'inline-',
@@ -92,10 +91,8 @@
                         </template>
                     </div>
                 </div>
-            @endif
         </div>
 
-        @if ($exercises->isNotEmpty())
             <div class="shrink-0 border-t border-border bg-surface px-6 py-4">
                 <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                     <button type="button" class="js-inline-workout-cancel inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-text hover:border-primary hover:text-primary">
@@ -106,7 +103,6 @@
                     </button>
                 </div>
             </div>
-        @endif
     </form>
 </dialog>
 

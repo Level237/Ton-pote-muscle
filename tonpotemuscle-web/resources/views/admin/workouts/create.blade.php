@@ -17,5 +17,7 @@
                 </a>
             </div>
         </form>
+
+        @include('admin.workouts._exercise-dialog')
     </div>
 </x-layouts.admin>

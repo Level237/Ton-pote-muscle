@@ -10,7 +10,7 @@
             <select
                 id="{{ $idPrefix }}items-{{ $index }}-exercise"
                 name="items[{{ $index }}][exercise_id]"
-                class="{{ $inputClass }}"
+                class="js-exercise-select {{ $inputClass }}"
             >
                 <option value="">Choisir</option>
                 @foreach ($exercises as $exercise)
@@ -18,6 +18,7 @@
                         {{ $exercise->title }}
                     </option>
                 @endforeach
+                <option value="__new__">+ Nouvel exercice</option>
             </select>
             @error('items.'.$index.'.exercise_id')
                 <p class="mt-1.5 text-sm text-danger">{{ $message }}</p>

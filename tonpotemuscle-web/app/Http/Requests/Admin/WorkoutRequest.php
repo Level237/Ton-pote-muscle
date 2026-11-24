@@ -17,7 +17,7 @@ class WorkoutRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $items = collect($this->input('items', []))
-            ->filter(fn ($item) => filled($item['exercise_id'] ?? null))
+            ->filter(fn ($item) => filled($item['exercise_id'] ?? null) && ($item['exercise_id'] ?? '') !== '__new__')
             ->map(function ($item): array {
                 $item['sets'] = filled($item['sets'] ?? null) ? $item['sets'] : 1;
 

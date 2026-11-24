@@ -75,6 +75,24 @@ class AdminExerciseTest extends TestCase
         Storage::disk('public')->assertExists($exercise->image_path);
     }
 
+    public function test_admin_can_create_an_exercise_as_json(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->postJson(route('admin.exercises.store'), [
+                'title' => 'Pompes',
+                'body_parts' => ['chest', 'arms'],
+                'equipments' => ['bodyweight'],
+                'instructions' => "Mains au sol\nDescendre",
+            ])
+            ->assertCreated()
+            ->assertJsonPath('title', 'Pompes')
+            ->assertJsonStructure(['id', 'title']);
+
+        $this->assertDatabaseHas('exercises', ['title' => 'Pompes']);
+    }
+
     public function test_exercise_title_is_required(): void
     {
         $admin = User::factory()->admin()->create();

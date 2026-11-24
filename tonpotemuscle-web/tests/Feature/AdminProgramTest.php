@@ -76,6 +76,7 @@ class AdminProgramTest extends TestCase
             ->assertSee('+ Nouvelle')
             ->assertSee('Nouvelle séance')
             ->assertSee('inline-workout-dialog')
+            ->assertSee('inline-exercise-dialog')
             ->assertDontSee('avant de composer un programme.');
     }
 

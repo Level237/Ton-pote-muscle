@@ -19,6 +19,8 @@
             </div>
         </form>
 
+        @include('admin.workouts._exercise-dialog')
+
         <form method="POST" action="{{ route('admin.workouts.destroy', $workout) }}">
             @csrf
             @method('DELETE')

@@ -63,6 +63,20 @@ class AdminWorkoutTest extends TestCase
             ->assertDontSee('Cardio');
     }
 
+    public function test_admin_can_compose_a_workout_without_existing_exercises(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->get(route('admin.workouts.create'))
+            ->assertOk()
+            ->assertSee('Exercices')
+            ->assertSee('+ Nouvel')
+            ->assertSee('Nouvel exercice')
+            ->assertSee('inline-exercise-dialog')
+            ->assertDontSee('avant de composer une séance.');
+    }
+
     public function test_admin_can_create_a_workout_with_ordered_exercises(): void
     {
         $admin = User::factory()->admin()->create();

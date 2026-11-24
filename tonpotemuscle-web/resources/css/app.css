@@ -33,6 +33,7 @@
         display: none;
     }
 
+    .admin-drawer,
     .program-workout-drawer {
         position: fixed;
         inset: 0 0 0 auto;
@@ -72,15 +73,18 @@
     }
 
     @starting-style {
+        .admin-drawer[open],
         .program-workout-drawer[open] {
             translate: 100% 0;
         }
 
+        .admin-drawer[open]::backdrop,
         .program-workout-drawer[open]::backdrop {
             opacity: 0;
         }
     }
 
+    .admin-drawer::before,
     .program-workout-drawer::before {
         content: '';
         position: absolute;
@@ -103,6 +107,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+        .admin-drawer,
+        .admin-drawer::backdrop,
         .program-workout-drawer,
         .program-workout-drawer::backdrop {
             transition: none;

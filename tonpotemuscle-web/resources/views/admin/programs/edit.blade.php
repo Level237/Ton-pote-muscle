@@ -20,6 +20,7 @@
         </form>
 
         @include('admin.programs._workout-dialog')
+        @include('admin.workouts._exercise-dialog')
 
         <form method="POST" action="{{ route('admin.programs.destroy', $program) }}">
             @csrf
