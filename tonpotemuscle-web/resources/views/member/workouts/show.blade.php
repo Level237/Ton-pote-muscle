@@ -3,7 +3,12 @@
         <a href="{{ route('dashboard') }}" class="text-sm text-muted hover:text-text">← Retour</a>
 
         <x-cover :src="$workout->thumbnailUrl()" icon="fa-solid fa-stopwatch" size="hero" class="mt-4" />
-        <h1 class="mt-3 text-2xl font-bold text-text">{{ $workout->title }}</h1>
+        @if ($isCatchUp ?? false)
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wider text-primary">
+                Rattrapage · prévue le {{ $item->planned_on->format('d/m/Y') }}
+            </p>
+        @endif
+        <h1 class="{{ ($isCatchUp ?? false) ? 'mt-1' : 'mt-3' }} text-2xl font-bold text-text">{{ $workout->title }}</h1>
         <p class="mt-1 text-sm text-muted">
             {{ $workout->durationMinutes() }} min
             · {{ $workout->items->count() }} exercice{{ $workout->items->count() > 1 ? 's' : '' }}
@@ -54,6 +59,12 @@
             @endforeach
         </ol>
 
+        @if (session('error'))
+            <p class="mt-6 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
+                {{ session('error') }}
+            </p>
+        @endif
+
         @if ($done)
             <p class="mt-6 text-sm text-muted">Séance faite.</p>
             <a
@@ -62,6 +73,14 @@
             >
                 Partager
             </a>
+        @elseif (($isCatchUp ?? false) && ($programClosed ?? false))
+            <p class="mt-6 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-muted">
+                Ce programme est clôturé : cette séance ne peut plus être rattrapée.
+            </p>
+        @elseif ($catchUpBlocked ?? false)
+            <p class="mt-6 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-muted">
+                Tu as déjà rattrapé une séance aujourd’hui. Reviens demain pour la suivante.
+            </p>
         @else
             <form method="POST" action="{{ route('member.workouts.start', $item) }}" class="mt-6">
                 @csrf
@@ -69,7 +88,7 @@
                     type="submit"
                     class="flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-4 text-base font-bold text-bg transition-colors hover:bg-primary-hover"
                 >
-                    Commencez
+                    {{ ($isCatchUp ?? false) ? 'Rattraper cette séance' : 'Commencez' }}
                 </button>
             </form>
         @endif

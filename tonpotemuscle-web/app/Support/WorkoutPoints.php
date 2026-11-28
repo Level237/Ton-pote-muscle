@@ -6,21 +6,27 @@ use Illuminate\Support\Carbon;
 
 final class WorkoutPoints
 {
-    public static function live(Carbon $plannedOn, bool $skipped, bool $abandoned = false): int
-    {
-        if ($abandoned) {
+    public static function live(
+        Carbon $plannedOn,
+        bool $skipped,
+        bool $abandoned = false,
+        bool $programClosed = false,
+    ): int {
+        if ($abandoned || $programClosed) {
             return 0;
         }
 
-        $diff = (int) abs($plannedOn->copy()->startOfDay()->diffInDays(now()->startOfDay()));
+        $today = now()->startOfDay();
+        $planned = $plannedOn->copy()->startOfDay();
+        $diff = (int) abs($planned->diffInDays($today));
 
-        $base = match ($diff) {
-            0 => 10,
-            1 => 7,
-            default => 0,
-        };
-
-        if ($base === 0) {
+        if ($diff === 0) {
+            $base = 10;
+        } elseif ($diff === 1) {
+            $base = 7;
+        } elseif ($planned->lt($today)) {
+            $base = 4;
+        } else {
             return 0;
         }
 

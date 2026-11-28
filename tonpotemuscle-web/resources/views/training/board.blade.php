@@ -114,6 +114,20 @@
                     À rattraper · {{ mb_strtoupper(mb_substr(ProgramWorkout::WEEKDAYS[$item->planned_on->dayOfWeekIso] ?? '', 0, 3)) }}. {{ $item->planned_on->day }}
                 </p>
                 @include('training._workout-detail', ['item' => $item])
+                @if (! $coach)
+                    @if ($caughtUpToday ?? false)
+                        <p class="mt-5 text-xs text-muted">
+                            Tu as déjà rattrapé une séance aujourd’hui. Reviens demain pour celle-ci.
+                        </p>
+                    @else
+                        <a
+                            href="{{ route('member.workouts.show', $item) }}"
+                            class="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-primary/40 bg-primary/10 px-4 font-display text-sm font-bold uppercase tracking-wider text-primary transition-colors hover:bg-primary hover:text-bg"
+                        >
+                            Rattraper cette séance
+                        </a>
+                    @endif
+                @endif
             </article>
         @endforeach
 
@@ -138,6 +152,19 @@
                         >
                             Débuter ma séance
                         </a>
+                    @elseif (! $coach && $day['status'] === 'missed' && ! $day['item']->isProgramClosed())
+                        @if ($caughtUpToday ?? false)
+                            <p class="mt-5 text-xs text-muted">
+                                Tu as déjà rattrapé une séance aujourd’hui. Reviens demain pour celle-ci.
+                            </p>
+                        @else
+                            <a
+                                href="{{ route('member.workouts.show', $day['item']) }}"
+                                class="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-primary/40 bg-primary/10 px-4 font-display text-sm font-bold uppercase tracking-wider text-primary transition-colors hover:bg-primary hover:text-bg"
+                            >
+                                Rattraper cette séance
+                            </a>
+                        @endif
                     @elseif (! $coach && $day['done'])
                         <a
                             href="{{ route('member.workouts.recap', $day['item']) }}"
@@ -223,6 +250,14 @@
                                     <li>{{ $row->exercise?->title }}@if ($day['item']->loadKg($row)) · {{ \App\Support\MemberEquipment::formatLoad($day['item']->loadKg($row)) }}@endif</li>
                                 @endforeach
                             </ul>
+                        @endif
+                        @if (! $coach && $day['status'] === 'missed' && ! $day['item']->isProgramClosed() && ! ($caughtUpToday ?? false))
+                            <a
+                                href="{{ route('member.workouts.show', $day['item']) }}"
+                                class="mt-3 inline-flex min-h-9 items-center rounded-lg border border-primary/50 px-3 text-xs font-semibold text-primary hover:bg-primary hover:text-bg"
+                            >
+                                Rattraper
+                            </a>
                         @endif
                     @endif
                 </article>

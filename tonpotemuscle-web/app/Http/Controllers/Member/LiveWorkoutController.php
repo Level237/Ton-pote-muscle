@@ -7,6 +7,7 @@ use App\Http\Requests\Member\CompleteLiveWorkoutRequest;
 use App\Models\MemberPlanItem;
 use App\Models\ProgramEnrollment;
 use App\Models\WorkoutLog;
+use App\Support\MemberTraining;
 use App\Support\ShareToken;
 use App\Support\WorkoutPoints;
 use Illuminate\Http\JsonResponse;
@@ -23,13 +24,25 @@ class LiveWorkoutController extends Controller
         $item->load(['workout.items.exercise', 'workout.category']);
 
         $log = $this->logFor($request, $item);
+        $done = $log?->isCompleted() ?? false;
+        $inProgress = $log !== null && ! $done && ! $log->abandoned;
+        $isCatchUp = $item->isCatchUp();
+        $programClosed = $item->isProgramClosed();
+        $catchUpBlocked = $isCatchUp
+            && ! $done
+            && ! $inProgress
+            && ! $programClosed
+            && MemberTraining::hasCaughtUpToday($request->user(), $item);
 
         return view('member.workouts.show', [
             'item' => $item,
             'workout' => $item->workout,
             'log' => $log,
-            'done' => $log?->isCompleted() ?? false,
-            'inProgress' => $log !== null && ! $log->isCompleted() && ! $log->abandoned,
+            'done' => $done,
+            'inProgress' => $inProgress,
+            'isCatchUp' => $isCatchUp,
+            'programClosed' => $programClosed,
+            'catchUpBlocked' => $catchUpBlocked,
         ]);
     }
 
@@ -40,6 +53,18 @@ class LiveWorkoutController extends Controller
 
         if ($log?->isCompleted()) {
             return redirect()->route('member.workouts.recap', $item);
+        }
+
+        if ($item->isCatchUp() && $item->isProgramClosed()) {
+            return redirect()
+                ->route('member.workouts.show', $item)
+                ->with('error', 'Ce programme est clôturé : cette séance ne peut plus être rattrapée.');
+        }
+
+        if ($item->isCatchUp() && $log === null && MemberTraining::hasCaughtUpToday($request->user(), $item)) {
+            return redirect()
+                ->route('member.workouts.show', $item)
+                ->with('error', 'Tu as déjà rattrapé une séance aujourd’hui. Reviens demain pour la suivante.');
         }
 
         $enrollmentId = null;
@@ -135,7 +160,7 @@ class LiveWorkoutController extends Controller
                 'completed_at' => now(),
                 'abandoned' => false,
                 'actual_duration_seconds' => $payload['actual_duration_seconds'] ?? null,
-                'points_awarded' => WorkoutPoints::live($item->planned_on, $skipped),
+                'points_awarded' => WorkoutPoints::live($item->planned_on, $skipped, false, $item->isProgramClosed()),
                 'share_token' => $log->share_token ?? ShareToken::unique(),
             ]);
         });
@@ -150,7 +175,7 @@ class LiveWorkoutController extends Controller
         abort_unless($item->user_id === $request->user()->id, 404);
         abort_if($item->isRest() || $item->workout_id === null, 404);
 
-        $item->loadMissing('assignment');
+        $item->loadMissing('assignment.program');
 
         return $item;
     }

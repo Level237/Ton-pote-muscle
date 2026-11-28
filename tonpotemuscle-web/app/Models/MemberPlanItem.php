@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProgramStatus;
 use App\Support\MemberEquipment;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -69,6 +70,28 @@ class MemberPlanItem extends Model
     public function isRest(): bool
     {
         return $this->kind === 'rest';
+    }
+
+    public function isCatchUp(): bool
+    {
+        return ! $this->isRest()
+            && $this->planned_on !== null
+            && $this->planned_on->lt(now()->startOfDay());
+    }
+
+    public function isProgramClosed(): bool
+    {
+        $program = $this->assignment?->program;
+
+        if ($program === null) {
+            return false;
+        }
+
+        if ($program->status === ProgramStatus::Closed || $program->closed_at !== null) {
+            return true;
+        }
+
+        return $program->ends_on !== null && $program->ends_on->lt(now()->startOfDay());
     }
 
     public function label(): string

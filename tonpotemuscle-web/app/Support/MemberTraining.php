@@ -195,7 +195,7 @@ final class MemberTraining
             ->where('user_id', $member->id)
             ->whereDate('planned_on', '>=', $monday->copy()->subWeeks(8)->toDateString())
             ->whereDate('planned_on', '<=', $monday->copy()->addWeeks(8)->toDateString())
-            ->with(['workout.items.exercise', 'workout.category'])
+            ->with(['workout.items.exercise', 'workout.category', 'assignment.program'])
             ->orderBy('planned_on')
             ->get();
 
@@ -220,7 +220,7 @@ final class MemberTraining
 
         $catchUp = $items
             ->filter(function (MemberPlanItem $item) use ($logs): bool {
-                if ($item->isRest() || $item->planned_on->gte(now()->startOfDay())) {
+                if (! $item->isCatchUp() || $item->isProgramClosed()) {
                     return false;
                 }
 
@@ -245,6 +245,7 @@ final class MemberTraining
             'weekWorkouts' => $weekWorkouts->count(),
             'weekDone' => $weekWorkouts->filter(fn (array $day) => $day['done'])->count(),
             'catchUp' => $catchUp,
+            'caughtUpToday' => self::hasCaughtUpToday($member),
             'progress' => self::progress($logs, $range, now()),
             'enrollments' => ProgramEnrollment::query()
                 ->where('user_id', $member->id)
@@ -261,5 +262,24 @@ final class MemberTraining
             'mealPlan' => $member->mealPlan,
             'suivi' => $suivi,
         ];
+    }
+
+    public static function hasCaughtUpToday(User $member, ?MemberPlanItem $excluding = null): bool
+    {
+        $today = now()->toDateString();
+
+        return WorkoutLog::query()
+            ->where('user_id', $member->id)
+            ->where('abandoned', false)
+            ->whereNotNull('completed_at')
+            ->whereDate('completed_at', $today)
+            ->whereDate('performed_on', '<', $today)
+            ->when($excluding !== null, function ($query) use ($excluding): void {
+                $query->where(function ($sub) use ($excluding): void {
+                    $sub->where('workout_id', '!=', $excluding->workout_id)
+                        ->orWhereDate('performed_on', '!=', $excluding->planned_on->toDateString());
+                });
+            })
+            ->exists();
     }
 }

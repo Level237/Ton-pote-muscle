@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ProgramStatus;
 use App\Models\Exercise;
 use App\Models\MemberPlanItem;
+use App\Models\Program;
 use App\Models\User;
 use App\Models\Workout;
 use App\Models\WorkoutLog;
@@ -150,10 +152,126 @@ class MemberLiveWorkoutTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_member_can_catch_up_a_missed_workout_and_earn_reduced_points(): void
+    {
+        [$member, $missed] = $this->givenWorkout(plannedOn: now()->subDays(4)->toDateString());
+        $exercise = $missed->workout->items->first();
+
+        $this->actingAs($member)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('À rattraper')
+            ->assertSee('Rattraper cette séance');
+
+        $this->actingAs($member)
+            ->get(route('member.workouts.show', $missed))
+            ->assertOk()
+            ->assertSee('Rattrapage')
+            ->assertSee('Rattraper cette séance');
+
+        $this->actingAs($member)
+            ->post(route('member.workouts.start', $missed))
+            ->assertRedirect(route('member.workouts.live', $missed));
+
+        $this->actingAs($member)
+            ->postJson(route('member.workouts.complete', $missed), [
+                'abandoned' => false,
+                'actual_duration_seconds' => 300,
+                'exercises' => [
+                    [
+                        'workout_exercise_id' => $exercise->id,
+                        'exercise_id' => $exercise->exercise_id,
+                        'position' => 1,
+                        'started_at' => now()->subMinutes(5)->toIso8601String(),
+                        'ended_at' => now()->toIso8601String(),
+                        'skipped' => false,
+                    ],
+                ],
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('workout_logs', [
+            'user_id' => $member->id,
+            'workout_id' => $missed->workout_id,
+            'points_awarded' => 6,
+            'abandoned' => false,
+        ]);
+
+        $this->actingAs($member)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('À rattraper');
+    }
+
+    public function test_member_is_limited_to_one_catch_up_per_day_while_todays_workout_stays_open(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create();
+        $workoutA = Workout::factory()->create(['title' => 'Séance A']);
+        $workoutB = Workout::factory()->create(['title' => 'Séance B']);
+        $workoutToday = Workout::factory()->create(['title' => 'Séance du jour']);
+
+        $assigner = app(MemberPlanAssigner::class);
+        $missedA = $assigner->assignWorkout($member, $admin, $workoutA, [now()->subDays(3)->toDateString()])->items()->first();
+        $missedB = $assigner->assignWorkout($member, $admin, $workoutB, [now()->subDays(2)->toDateString()])->items()->first();
+        $today = $assigner->assignWorkout($member, $admin, $workoutToday, [now()->toDateString()])->items()->first();
+
+        // Premier rattrapage complété aujourd’hui
+        $this->actingAs($member)->post(route('member.workouts.start', $missedA))->assertRedirect(route('member.workouts.live', $missedA));
+        $this->actingAs($member)->postJson(route('member.workouts.complete', $missedA), [
+            'abandoned' => false,
+            'actual_duration_seconds' => 240,
+            'exercises' => [],
+        ])->assertOk();
+
+        // Deuxième rattrapage le même jour : bloqué
+        $this->actingAs($member)
+            ->post(route('member.workouts.start', $missedB))
+            ->assertRedirect(route('member.workouts.show', $missedB))
+            ->assertSessionHas('error');
+
+        // La séance du jour reste accessible
+        $this->actingAs($member)
+            ->post(route('member.workouts.start', $today))
+            ->assertRedirect(route('member.workouts.live', $today));
+    }
+
+    public function test_member_cannot_catch_up_a_workout_from_a_closed_program(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $member = User::factory()->member()->create();
+        $workout = Workout::factory()->create(['title' => 'Séance close']);
+        $program = Program::factory()->create([
+            'status' => ProgramStatus::Closed,
+            'starts_on' => now()->subDays(20),
+            'ends_on' => now()->subDays(2),
+            'closed_at' => now()->subDay(),
+        ]);
+
+        $assignment = app(MemberPlanAssigner::class)->assignWorkout(
+            $member,
+            $admin,
+            $workout,
+            [now()->subDays(4)->toDateString()],
+        );
+        $assignment->update(['program_id' => $program->id]);
+        $item = $assignment->items()->first();
+
+        $this->actingAs($member)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('À rattraper');
+
+        $this->actingAs($member)
+            ->post(route('member.workouts.start', $item))
+            ->assertRedirect(route('member.workouts.show', $item))
+            ->assertSessionHas('error');
+    }
+
     /**
      * @return array{0: User, 1: MemberPlanItem, 2?: Exercise, 3?: Exercise}
      */
-    private function givenWorkout(bool $loads = false): array
+    private function givenWorkout(bool $loads = false, ?string $plannedOn = null): array
     {
         $admin = User::factory()->admin()->create();
         $member = User::factory()->member()->create();
@@ -187,7 +305,7 @@ class MemberLiveWorkoutTest extends TestCase
             $member,
             $admin,
             $workout,
-            [now()->toDateString()],
+            [$plannedOn ?? now()->toDateString()],
             $loads ? [(string) $workout->items()->orderBy('position')->first()->id => 12] : [],
         );
 
